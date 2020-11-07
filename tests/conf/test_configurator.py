@@ -2,7 +2,7 @@ import unittest
 from src.conf.configurator import Configurator
 
 
-class TestConfigurator(unittest.TestCase):
+class ConfiguratorTest(unittest.TestCase):
     def setUp(self):
         self.config = Configurator()
 
