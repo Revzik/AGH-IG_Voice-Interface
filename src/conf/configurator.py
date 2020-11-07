@@ -29,3 +29,16 @@ class Configurator:
 
     def parse_synthesis(self):
         return {}
+
+    def reload(self):
+        directory = os.path.dirname(__file__)
+
+        analysis_path = os.path.abspath(os.path.join(directory, '..', '..', 'conf', 'analysis.ini'))
+        self.analysis_config = cp.ConfigParser()
+        self.analysis_config.read(analysis_path)
+        self.analysis = self.parse_analysis()
+
+        synthesis_path = os.path.abspath(os.path.join(directory, '..', '..', 'conf', 'synthesis.ini'))
+        self.synthesis_config = cp.ConfigParser()
+        self.synthesis_config.read(synthesis_path)
+        self.synthesis = self.parse_synthesis()
