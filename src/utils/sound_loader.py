@@ -15,12 +15,10 @@ class SoundLoader:
     def sound_load_file():
 
         file_path = str(config.analysis['path_waves'])[1:len(str(config.analysis['path_waves'])) - 1] #przy konwersji
-        i = 0
         sound_list = []
 
         for filename in glob.glob(os.path.join(file_path, '*.wav')):
         #for filename in glob.glob(os.path.join(folder_path, '*.wav')):
             wav_data, fs = sf.read(filename)
             sound_list.append(wav_data)
-            i += 1
         return sound_list
