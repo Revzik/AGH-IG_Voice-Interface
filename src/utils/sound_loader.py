@@ -18,7 +18,6 @@ class SoundLoader:
 
         i = 0
         sound_list = []
-
         print("Podaj ścieżkę pliku z nagraniami: ")
         paths = input()
         for filename in glob.glob(os.path.join(paths, '*.wav')):
