@@ -24,9 +24,7 @@ class Configurator:
             'window_length': self.analysis_config.getint('parametrization', 'window_length', fallback=20),
             'window_overlap': self.analysis_config.getint('parametrization', 'window_overlap', fallback=10),
             'filterbank_size': self.analysis_config.getint('parametrization', 'filterbank_size', fallback=14),
-            'path_waves': self.analysis_config.get('preprocessing', 'path_waves', fallback='/Users/Kasia/Desktop/IG_nagrania/Katarzyna Radomska/1')
-            #jakby tu ktoś umiał zrobić coś w stylu funkcjęi getstring to by było ekstra, nie musiałabym kombinować z usuwaniem '' w sound_load_file XD
-        }
+            }
         return analysis
 
     def parse_synthesis(self):
