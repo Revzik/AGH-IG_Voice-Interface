@@ -15,7 +15,6 @@ class SoundLoader:
 
 
     def sound_load_file():
-
         i = 0
         sound_list = []
         print("Podaj ścieżkę pliku z nagraniami: ")
