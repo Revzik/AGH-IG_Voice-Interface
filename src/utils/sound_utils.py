@@ -1,27 +1,16 @@
 from src.conf import config
-import math
+import numpy as np
 
 class SoundUtils:
     def __init__(self):
         pass
 
-def normalziation(self,audio):
+    def normalze(self, audio):
 
-    square = 0
-    mean =0.0
-    root_mean_square = 0.0
+        root_mean_square = np.sqrt(np.mean(np.power(audio, 2)))
+        # signal normalization
+        audio_normalize = audio / root_mean_square
 
-    #calculate square
-    for i in range(0, len(audio)):
-        square += (audio[i]**2)
+        return audio_normalize
 
-    #calculate mean
-    mean = (square / (float)(len(audio)))
 
-    #calculate root
-    root_mean_square = math.sqrt(mean)
-
-    # signal normalization
-    audio_normalized = audio / root_mean_square
-
-    return audio_normalized
