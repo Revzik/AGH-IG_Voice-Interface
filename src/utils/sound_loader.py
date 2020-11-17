@@ -2,7 +2,6 @@ from src.conf import config
 import os
 import glob
 import soundfile as sf
-
 import math
 import numpy as np
 import scipy.signal as sig
@@ -10,7 +9,7 @@ import scipy.signal as sig
 class SoundLoader:
     def __init__(self):
         # tak się dobiera do ustalonych parametrów (wszystkie są w configurator.py)
-        # print(Configurator.parse_analysis()['sampling_frequency']) - zostawiam, żeby mieć wzór
+        # print(config.analysis['sampling_frequency']) - zostawiam, żeby mieć wzór
         pass
 
 

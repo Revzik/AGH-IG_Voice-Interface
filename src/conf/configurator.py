@@ -24,7 +24,7 @@ class Configurator:
             'window_length': self.analysis_config.getint('parametrization', 'window_length', fallback=20),
             'window_overlap': self.analysis_config.getint('parametrization', 'window_overlap', fallback=10),
             'filterbank_size': self.analysis_config.getint('parametrization', 'filterbank_size', fallback=14)
-            }
+        }
         return analysis
 
     def parse_synthesis(self):
