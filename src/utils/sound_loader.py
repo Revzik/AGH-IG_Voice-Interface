@@ -1,4 +1,7 @@
 from src.conf import config
+import os
+import glob
+import soundfile as sf
 import math
 import numpy as np
 import scipy.signal as sig
@@ -6,7 +9,21 @@ import scipy.signal as sig
 class SoundLoader:
     def __init__(self):
         # tak się dobiera do ustalonych parametrów (wszystkie są w configurator.py)
-       pass
+        # print(config.analysis['sampling_frequency']) - zostawiam, żeby mieć wzór
+        pass
+
+
+    def sound_load_file(self):
+        i = 0
+        sound_list = []
+        print("Podaj ścieżkę pliku z nagraniami: ")
+        paths = input()
+        for filename in glob.glob(os.path.join(paths, '*.wav')):
+            wav_data, fs = sf.read(filename)
+            sound_list.append({"nazwa": os.listdir(paths)[i][:-4], "fs": fs, "wav": wav_data})
+            i += 1
+
+        return sound_list
 
     def downsample(self, audio, fs):
 
