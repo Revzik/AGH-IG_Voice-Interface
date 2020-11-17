@@ -14,7 +14,7 @@ class SoundLoader:
         pass
 
 
-    def sound_load_file():
+    def sound_load_file(self):
         i = 0
         sound_list = []
         print("Podaj ścieżkę pliku z nagraniami: ")
