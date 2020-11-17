@@ -23,7 +23,7 @@ class Configurator:
             'speech_threshold': self.analysis_config.getfloat('preprocessing', 'speech_threshold', fallback=0.4),
             'window_length': self.analysis_config.getint('parametrization', 'window_length', fallback=20),
             'window_overlap': self.analysis_config.getint('parametrization', 'window_overlap', fallback=10),
-            'filterbank_size': self.analysis_config.getint('parametrization', 'filterbank_size', fallback=14),
+            'filterbank_size': self.analysis_config.getint('parametrization', 'filterbank_size', fallback=14)
             }
         return analysis
 
