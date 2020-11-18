@@ -13,7 +13,7 @@ class SoundLoader:
         pass
 
 
-    def sound_load_file(self):
+    def sound_load_file():
         i = 0
         sound_list = []
         print("Podaj ścieżkę pliku z nagraniami: ")
@@ -46,3 +46,11 @@ class SoundLoader:
         audio_down = audio_up[downsample_factor//2::downsample_factor]
 
         return audio_down
+
+    def remove_dc_offset(self, sound_list):
+
+        audio_without_dc = []
+        for i in range(0, len(sound_list)):
+            audio_without_dc.append(sound_list[i]['wav'] - np.mean(sound_list[i]['wav']))
+
+        return audio_without_dc
