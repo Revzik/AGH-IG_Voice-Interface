@@ -15,9 +15,9 @@ class SoundLoaderTest(unittest.TestCase):
             {'name': 1, 'fs': 1000, 'wav': np.arange(0, 10)},
             {'name': 1, 'fs': 1000, 'wav': np.ones(100)}
         ]
-        mean_test = np.mean(Sl.remove_dc_offset(self, test_soundlist)[:]['wav'])
-        for i in range(len(mean_test)):
-            self.assertGreater(mean_test[i], 10**-14)
+        sl_without_dc_test = Sl.remove_dc_offset(test_soundlist)
+        for i in range(len(sl_without_dc_test)):
+            self.assertAlmostEqual(np.mean(sl_without_dc_test[i]['wav']), 0, 15)
 
 
 if __name__ == '__main__':

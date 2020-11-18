@@ -47,7 +47,7 @@ class SoundLoader:
 
         return audio_down
 
-    def remove_dc_offset(self, sound_list):
+    def remove_dc_offset(sound_list):
 
         audio_without_dc = []
         for i in range(0, len(sound_list)):
