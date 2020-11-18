@@ -1,22 +1,20 @@
 import unittest
-from src.param.mfcc import *
+from src.param.mfcc import Mfcc
+import numpy as np
 import matplotlib.pyplot as plt
 
 
 class MfccTest(unittest.TestCase):
-    def setUp(self):
-        self.mfcc = Mfcc()
-
     def test_first_power_of_2(self):
         x1 = 4
         x2 = 11
         x3 = 1
         x4 = 0
 
-        self.assertEqual(4, first_power_of_2(x1))
-        self.assertEqual(16, first_power_of_2(x2))
-        self.assertEqual(1, first_power_of_2(x3))
-        self.assertIsNone(first_power_of_2(x4))
+        self.assertEqual(4, Mfcc.first_power_of_2(x1))
+        self.assertEqual(16, Mfcc.first_power_of_2(x2))
+        self.assertEqual(1, Mfcc.first_power_of_2(x3))
+        self.assertIsNone(Mfcc.first_power_of_2(x4))
 
     def test_fft(self):
         # transform 1: 20 Hz sine, number of samples is a power of 2
@@ -25,7 +23,7 @@ class MfccTest(unittest.TestCase):
         n1 = int(fs1 * l1)
         t1 = np.linspace(0, l1, n1, False)
         x1 = np.sin(2 * 20 * np.pi * t1)
-        y1 = self.mfcc.fft(x1)
+        y1 = Mfcc.fft(x1)
 
         self.assertEqual(1024, y1.size)
         self.assertLess(500, np.abs(y1[20]))
@@ -38,7 +36,7 @@ class MfccTest(unittest.TestCase):
         n2 = int(fs2 * l2)
         t2 = np.linspace(0, l2, n2, False)
         x2 = np.sin(2 * 100 * np.pi * t2)
-        y2 = self.mfcc.fft(x2)
+        y2 = Mfcc.fft(x2)
 
         self.assertEqual(2048, y2.size)
         self.assertGreater(500, np.abs(y1[205]))
@@ -48,7 +46,7 @@ class MfccTest(unittest.TestCase):
         n3 = 101
         x3 = np.zeros(n3)
         x3[50] = 1
-        y3 = self.mfcc.fft(x3)
+        y3 = Mfcc.fft(x3)
 
         self.assertEqual(128, y3.size)
         self.assertFalse(any(np.abs(f) > 1.01 or np.abs(f) < 0.99 for f in y3))
@@ -59,7 +57,7 @@ class MfccTest(unittest.TestCase):
         n4 = int(fs4 * l4)
         t4 = np.linspace(0, l4, n4, False)
         x4 = 2 * (t4/0.5 - np.floor(0.5 + t4/0.5))
-        y4 = self.mfcc.fft(x4)
+        y4 = Mfcc.fft(x4)
 
         self.assertEqual(256, y4.size)
         self.assertLess(80, np.abs(y4[4]))
