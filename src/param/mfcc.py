@@ -7,18 +7,27 @@ class Mfcc:
         pass
 
     def fft(self, x):
+        """
+        Computes FFT using recursive Cooley-Tukey algorithm
+        :param x: (1-D numpy array) signal array to transform.
+        If length is not a power of 2, then it gets padded with zeros.
+        :return: (1-D complex numpy array) FFT of x
+        """
         if x.size == 0:
             return x
         if x.size & (x.size - 1):
             target_length = first_power_of_2(x.size)
             x = np.concatenate((x, np.zeros(target_length - x.size)))
 
-        y = cooley_tukey(x)
-
-        return y
+        return cooley_tukey(x)
 
 
 def cooley_tukey(x):
+    """
+    Computes FFT using recursive Cooley-Tukey algorithm given x length is a power of 2
+    :param x: (1-D numpy array) signal array to transform
+    :return: (1-D complex numpy array) FFT of x
+    """
     if x.size == 1:
         return x
 
@@ -33,6 +42,11 @@ def cooley_tukey(x):
 
 
 def first_power_of_2(x):
+    """
+    Finds the first power of 2 above or equal to given number
+    :param x: (1-D numpy array) given number (must be at least 1)
+    :return: (int) the closest power of 2 above x
+    """
     if x < 1:
         return None
     power = 1
