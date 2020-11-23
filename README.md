@@ -2,7 +2,7 @@
 Basic voice interface targeted to recognize and synthesize a few words as a part of university course.
 
 ### Branch naming pattern
-dev/_issue number_-_short description_
+dev/\<issue number\>-\<short description\>
 
 ### Authors
 _Bartłomiej Piekarz_ 
