@@ -1,17 +1,5 @@
-from src.conf import config
-import numpy as np
-from src.param.mfcc import Mfcc
+def normalize(sound_list):
+    for i in range(len(sound_list)):
+        sound_list[i].normalize()
 
-class SoundUtils:
-    def __init__(self):
-        pass
-
-    def normalize(self, audio):
-
-        root_mean_square = np.sqrt(np.mean(np.power(audio, 2)))
-        # signal normalization
-        audio_normalize = audio / root_mean_square
-
-        return audio_normalize
-
-
+    return sound_list

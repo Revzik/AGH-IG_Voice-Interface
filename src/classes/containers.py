@@ -36,3 +36,6 @@ class SoundWave:
 
     def remove_dc(self):
         self.samples = self.samples - np.mean(self.samples)
+
+    def normalize(self):
+        self.samples = self.samples / np.sqrt(np.mean(np.power(self.samples, 2)))
