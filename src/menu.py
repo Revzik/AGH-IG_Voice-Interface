@@ -1,4 +1,3 @@
-from src.param.mfcc import Mfcc
 """
 This is a console version of menu to the interface
 """

@@ -12,9 +12,9 @@ class SoundUtilsTest(unittest.TestCase):
             SoundWave(np.array([-1, -2, -3, -4, -5, -6]))
         ]
 
-        sound_utils.normalize(sound_waves)
-
         for sound_wave in sound_waves:
+            sound_wave = sound_utils.normalize(sound_wave)
+
             self.assertEqual(1, np.sqrt(np.mean(np.power(sound_wave.samples, 2))))
 
 
