@@ -2,6 +2,8 @@
 This is a console version of menu to the interface
 """
 
+from src.utils import sound_loader
+
 
 def print_message():
     print("Interfejs głosowy 2020/2021")
