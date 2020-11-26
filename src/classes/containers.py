@@ -15,7 +15,7 @@ class SoundWave:
     def __setitem__(self, i, value):
         self.samples[i] = value
 
-    def get_length(self):
+    def length(self):
         return self.samples.size
 
 
@@ -33,7 +33,7 @@ class Window:
     def __setitem__(self, i, value):
         self.samples[i] = value
 
-    def get_length(self):
+    def length(self):
         return self.samples.size
 
 
@@ -48,11 +48,11 @@ class FFTFrame:
     def __setitem__(self, i, value):
         self.samples[i] = value
 
-    def get_length(self):
+    def length(self):
         return self.samples.size
 
     def spectrum(self):
-        return np.abs(self.samples[0:self.get_length() // 2])
+        return np.abs(self.samples[0:self.length() // 2])
 
 
 class MelFrame:
@@ -69,7 +69,7 @@ class MelFrame:
     def __setitem__(self, i, value):
         self.samples[i] = value
 
-    def get_length(self):
+    def length(self):
         return self.samples.size
 
 
@@ -83,5 +83,5 @@ class CepstralFrame:
     def __setitem__(self, i, value):
         self.samples[i] = value
 
-    def get_length(self):
+    def length(self):
         return self.samples.size

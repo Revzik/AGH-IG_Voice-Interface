@@ -29,7 +29,7 @@ def downsample(sound_wave):
     downsample_factor = int(last_common_multiple // sampling_frequency)
 
     # upsampling
-    audio_up = np.zeros(sound_wave.get_length() * upsample_factor)
+    audio_up = np.zeros(sound_wave.length() * upsample_factor)
     audio_up[upsample_factor // 2::upsample_factor] = sound_wave.samples
 
     # filtering
