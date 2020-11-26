@@ -1,56 +1,49 @@
-from src.conf import config
 import os
 import glob
 import soundfile as sf
+import scipy.signal as sig
 import math
 import numpy as np
-import scipy.signal as sig
 
-class SoundLoader:
-    def __init__(self):
-        # tak się dobiera do ustalonych parametrów (wszystkie są w configurator.py)
-        # print(config.analysis['sampling_frequency']) - zostawiam, żeby mieć wzór
-        pass
+from src.classes.containers import SoundWave
+from src.conf import config
 
 
-    def sound_load_file():
-        i = 0
-        sound_list = []
-        print("Please enter the path for the folder with waves: ")
-        paths = input()
-        for filename in glob.glob(os.path.join(paths, '*.wav')):
-            wav_data, fs = sf.read(filename)
-            sound_list.append({"name": os.listdir(paths)[i][:-4], "fs": fs, "wav": wav_data})
-            i += 1
+def load_sound_file():
+    sound_list = []
+    print("Please enter the path for the folder with waves: ")
+    paths = input()
+    for i, filename in enumerate(glob.glob(os.path.join(paths, '*.wav'))):
+        wav_data, fs = sf.read(filename)
+        sound_list.append(SoundWave(wav_data, fs, os.listdir(paths)[i][:-4]))
 
-        return sound_list
+    return sound_list
 
-    def downsample(self, audio, fs):
 
-        sampling_frequency = config.analysis['sampling_frequency']
+def downsample(sound_wave):
+    sampling_frequency = config.analysis['sampling_frequency']
 
-        #down and up factor
-        last_common_multipe = (fs * sampling_frequency) / math.gcd(fs, sampling_frequency)
-        upsample_factor = int(last_common_multipe// fs)
-        downsample_factor = int(last_common_multipe// sampling_frequency)
+    # down and up factor
+    last_common_multiple = (sound_wave.fs * sampling_frequency) / math.gcd(sound_wave.fs, sampling_frequency)
+    upsample_factor = int(last_common_multiple // sound_wave.fs)
+    downsample_factor = int(last_common_multiple // sampling_frequency)
 
-        #upsampling
-        audio_up = np.zeros(len(audio) * upsample_factor)
-        audio_up[upsample_factor//2::upsample_factor] = audio
+    # upsampling
+    audio_up = np.zeros(sound_wave.length() * upsample_factor)
+    audio_up[upsample_factor // 2::upsample_factor] = sound_wave.samples
 
-        #filtering
-        filtr = sig.firwin(301, cutoff=sampling_frequency / 2, fs=fs * upsample_factor)
-        audio_up = downsample_factor * sig.filtfilt(filtr, 1, audio_up)
+    # filtering
+    alias_filter = sig.firwin(301, cutoff=sampling_frequency / 2, fs=sound_wave.fs * upsample_factor)
+    audio_up = downsample_factor * sig.filtfilt(alias_filter, 1, audio_up)
 
-        #downsampling
-        audio_down = audio_up[downsample_factor//2::downsample_factor]
+    # downsampling
+    audio_down = audio_up[downsample_factor // 2::downsample_factor]
+    sound_wave.samples = audio_down
 
-        return audio_down
+    return sound_wave
 
-    def remove_dc_offset(sound_list):
 
-        audio_without_dc = []
-        for i in range(0, len(sound_list)):
-            audio_without_dc.append({"name": sound_list[i]["name"], "fs": sound_list[i]["fs"], "wav": (sound_list[i]['wav'] - np.mean(sound_list[i]['wav']))})
+def remove_dc_offset(sound_wave):
+    sound_wave.samples = sound_wave.samples - np.mean(sound_wave.samples)
 
-        return audio_without_dc
+    return sound_wave

@@ -1,7 +1,8 @@
-from src.param.mfcc import Mfcc
 """
 This is a console version of menu to the interface
 """
+
+from src.utils import sound_loader
 
 
 def print_message():

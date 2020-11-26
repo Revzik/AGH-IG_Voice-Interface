@@ -1,23 +1,23 @@
 import unittest
-import matplotlib.pyplot as plt
 import numpy as np
 
-from src.utils.sound_loader import SoundLoader as Sl
+from src.classes.containers import SoundWave
+from src.utils import sound_loader as sl
 
 
 class SoundLoaderTest(unittest.TestCase):
-    #tutaj można pisać testy do metod z Mfcc (na wzór test_configurator.py)
-
     def test_remove_dc_offset(self):
-        test_soundlist = [
-            {'name': 1, 'fs': 1000, 'wav': 1 + np.sin(8*np.pi*np.linspace(0, 1, 1000, False))},
-            {'name': 1, 'fs': 1000, 'wav': -0.5 + np.sin(2*np.pi*np.linspace(0, 1, 1000, False))},
-            {'name': 1, 'fs': 1000, 'wav': np.arange(0, 10)},
-            {'name': 1, 'fs': 1000, 'wav': np.ones(100)}
+        sound_list = [
+            SoundWave(1 + np.sin(8*np.pi*np.linspace(0, 1, 1000, False)), 1000, "a"),
+            SoundWave(-0.5 + np.sin(2*np.pi*np.linspace(0, 1, 1000, False)), 1000, "b"),
+            SoundWave(np.arange(0, 10), 1000, "c"),
+            SoundWave(np.ones(100), 1000, "d")
         ]
-        sl_without_dc_test = Sl.remove_dc_offset(test_soundlist)
-        for i in range(len(sl_without_dc_test)):
-            self.assertAlmostEqual(np.mean(sl_without_dc_test[i]['wav']), 0, 15)
+
+        for sound_wave in sound_list:
+            sound_wave = sl.remove_dc_offset(sound_wave)
+
+            self.assertAlmostEqual(np.mean(sound_wave.samples), 0, 15)
 
 
 if __name__ == '__main__':
