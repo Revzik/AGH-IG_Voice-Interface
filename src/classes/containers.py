@@ -38,10 +38,10 @@ class Window:
 
 
 class FFTFrame:
-    def __init__(self, samples, df=1):
+    def __init__(self, samples, fs=1):
         self.samples = samples
-        self.df = df
-        self.nyquist_frequency = df * samples.size / 2
+        self.fs = fs
+        self.df = fs / samples.size
 
     def __getitem__(self, i):
         return self.samples[i]
@@ -53,7 +53,7 @@ class FFTFrame:
         return self.samples.size
 
     def spectrum(self):
-        return np.abs(self.samples[0:self.length() // 2])
+        return np.abs(self.samples)
 
 
 class MelFrame:
