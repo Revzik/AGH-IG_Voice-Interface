@@ -41,6 +41,7 @@ class FFTFrame:
     def __init__(self, samples, df=1):
         self.samples = samples
         self.df = df
+        self.nyquist_frequency = df * samples.size / 2
 
     def __getitem__(self, i):
         return self.samples[i]
@@ -68,9 +69,6 @@ class MelFrame:
 
     def __setitem__(self, i, value):
         self.samples[i] = value
-
-    def length(self):
-        return self.samples.size
 
 
 class CepstralFrame:
