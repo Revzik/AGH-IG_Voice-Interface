@@ -140,8 +140,8 @@ def get_frequency(mel):
     return 700 * (np.power(10, mel / 2595) - 1)
 
 
-def MfccLogarithm (MelFrame):
+def logarithm(mel_filter_log):
 
-    MelFrame = 20 * np.log10(MelFrame)
+    mel_filter_log.samples = np.log10(mel_filter_log.samples)
 
-    return MelFrame
+    return mel_filter_log
