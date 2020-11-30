@@ -3,7 +3,7 @@ from src.conf import config
 
 
 def windowing(sound_wave, length_t, overlap_t):
-    #defining the samples and needed lengths
+    # defining the samples and needed lengths
     sampling_frequency = config.analysis['sampling_frequency']
     length_samples = int(round(length_t * sampling_frequency))
     overlap_samples = int(round(overlap_t * sampling_frequency))
@@ -11,10 +11,10 @@ def windowing(sound_wave, length_t, overlap_t):
     window_list = []
     pad_signal = []
 
-    #checking how many windows we need in a signal
+    # checking how many windows we need in a signal
     window_quantity = int(np.ceil(float(np.abs(signal_length - length_samples)) / overlap_samples))
 
-    #creating pad signal to add zeros to incomplete windows
+    # creating pad signal to add zeros to incomplete windows
     pad_signal_length = window_quantity * overlap_samples + length_samples
     zeros = np.zeros(pad_signal_length - signal_length)
     pad_signal.append(sound_wave.samples, zeros)
