@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 
 from src.param.mfcc import *
 from src.classes.containers import Window
+from src.classes.containers import MelFrame
+from src.param import mfcc
 
 
 class MfccTest(unittest.TestCase):
@@ -208,6 +210,15 @@ class MfccTest(unittest.TestCase):
         # axes[2].set_title('Mel coefficients')
         # fig.show()
 
+
+    def test_logarithm(self):
+
+        mel_filter = MelFrame(np.array([10,100,1000]))
+        mel_filter_log = mfcc.logarithm(mel_filter).samples
+
+        self.assertEqual(1, mel_filter_log[0])
+        self.assertEqual(2, mel_filter_log[1])
+        self.assertEqual(3, mel_filter_log[2])
 
 if __name__ == '__main__':
     unittest.main()

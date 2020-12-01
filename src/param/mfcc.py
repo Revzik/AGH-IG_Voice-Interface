@@ -138,3 +138,10 @@ def get_frequency(mel):
     """
 
     return 700 * (np.power(10, mel / 2595) - 1)
+
+
+def logarithm(mel_filter_log):
+
+    mel_filter_log.samples = np.log10(mel_filter_log.samples)
+
+    return mel_filter_log
