@@ -23,7 +23,7 @@ class ParametrizerTest(unittest.TestCase):
 
         # For an ascending linear function every next window should have higher energy
         for i in range(len(frames) - 1):
-            self.assertGreater(sound_utils)
+            self.assertGreater(sound_utils.rms(frames[i + 1].samples), sound_utils.rms(frames[i].samples))
 
         # Plots
         # win_len = int(config.analysis['window_length'] * fs / 1000)
@@ -48,8 +48,8 @@ class ParametrizerTest(unittest.TestCase):
         # axes[1].grid()
         # axes[1].set_title("windowed")
         # axes[1].set_xlabel("t [s]")
-
-        fig.show()
+        #
+        # fig.show()
 
     def test_hann(self):
         win_len = 1000
