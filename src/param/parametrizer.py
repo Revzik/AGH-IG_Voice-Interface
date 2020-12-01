@@ -1,30 +1,49 @@
 import numpy as np
+
+from src.classes.containers import Window
 from src.conf import config
 
 
-def windowing(sound_wave, length_t, overlap_t):
-    # defining the samples and needed lengths
-    sampling_frequency = config.analysis['sampling_frequency']
-    length_samples = int(round(length_t * sampling_frequency))
-    overlap_samples = int(round(overlap_t * sampling_frequency))
-    signal_length = len(sound_wave.samples)
-    window_list = []
-    pad_signal = []
+def window(sound_wave):
+    """
+    Splits the signal into frames using window length and window overlap specified in config
+    The applied windowing function type is Hann
 
-    # checking how many windows we need in a signal
-    window_quantity = int(np.ceil(float(np.abs(signal_length - length_samples)) / overlap_samples))
+    :param sound_wave: (SoundWave) sound wave to be windowed
+    :return: (List of Window) next frames from specified sound wave
+    """
 
-    # creating pad signal to add zeros to incomplete windows
-    pad_signal_length = window_quantity * overlap_samples + length_samples
-    zeros = np.zeros(pad_signal_length - signal_length)
-    pad_signal.append(sound_wave.samples, zeros)
+    # Load parameters from config
+    win_len = int(config.analysis['window_length'] * sound_wave.fs / 1000)
+    win_ovlap = int(config.analysis['window_overlap'] * sound_wave.fs / 1000)
+    win_step = win_len - win_ovlap
 
-    indices = np.tile(np.arrange(0, length_samples), (window_quantity, 1)) + np.tile(
-        np.arrange(0, window_quantity * overlap_samples, overlap_samples), (length_samples, 1))
-    frames = pad_signal[indices.astype(np.int32, copy=False)]
+    # Prepare data for windowing
+    frames = []
+    offset = 0
+    win_fun = hann(win_len)
 
-    for n in range(1, len(frames)):
-        frames *= 0.54 - 0.46 * np.cos((2 * np.pi * n) / (length_samples - 1))
-        window_list.append(frames)
+    # Chop the signal (and apply window) except last frame
+    while offset < sound_wave.length() - win_len:
+        frame = sound_wave.samples[offset:(offset + win_len)] * win_fun
+        frames.append(Window(frame, sound_wave.fs))
+        offset += win_step
 
-    return window_list
+    # Pad last frame with zeros
+    raw_frame = sound_wave.samples[offset::]
+    padded_frame = np.hstack((raw_frame, np.zeros(win_len - raw_frame.size))) * win_fun
+    frames.append(Window(padded_frame, sound_wave.fs))
+
+    return frames
+
+
+def hann(N):
+    """
+    Computes samples for Hann window of lenght N
+
+    :param N: (int) length of Hann window
+    :return: (1-D ndarray) Hann window samples
+    """
+    a0 = 0.5
+    a1 = 1 - a0
+    return a0 - a1 * np.cos(2 * np.pi * np.arange(N) / N)
