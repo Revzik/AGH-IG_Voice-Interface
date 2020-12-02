@@ -39,6 +39,7 @@ def downsample(sound_wave):
     # downsampling
     audio_down = audio_up[downsample_factor // 2::downsample_factor]
     sound_wave.samples = audio_down
+    sound_wave.fs = sampling_frequency
 
     return sound_wave
 

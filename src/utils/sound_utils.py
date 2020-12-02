@@ -4,9 +4,13 @@ from src.conf import config
 
 def normalize(sound_wave):
 
-    sound_wave.samples = sound_wave.samples / np.sqrt(np.mean(np.power(sound_wave.samples, 2)))
+    sound_wave.samples = sound_wave.samples / rms(sound_wave.samples)
 
     return sound_wave
+
+
+def rms(samples):
+    return np.sqrt(np.mean(np.power(samples, 2)))
 
 
 def preemphasis(sound_wave):
