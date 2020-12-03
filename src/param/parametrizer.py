@@ -5,12 +5,26 @@ from src.conf import config
 
 
 def window(sound_wave):
+    frames = split(sound_wave)
+
+    win_len = frames[0].size
+    win_fun = hann(win_len)
+
+    windows = []
+    for frame in frames:
+        if contains_speech(frame):
+            windows.append(Window(apply_window_function(frame, win_fun), sound_wave.fs))
+
+    return windows
+
+
+def split(sound_wave):
     """
     Splits the signal into frames using window length and window overlap specified in config
     The applied windowing function type is Hann
 
     :param sound_wave: (SoundWave) sound wave to be windowed
-    :return: (List of Window) next frames from specified sound wave
+    :return: (List of 1-D ndarrays) next frames from specified sound wave
     """
 
     # Load parameters from config
@@ -21,20 +35,32 @@ def window(sound_wave):
     # Prepare data for windowing
     frames = []
     offset = 0
-    win_fun = hann(win_len)
 
     # Chop the signal (and apply window) except last frame
     while offset < sound_wave.length() - win_len:
-        frame = sound_wave.samples[offset:(offset + win_len)] * win_fun
-        frames.append(Window(frame, sound_wave.fs))
+        frame = sound_wave.samples[offset:(offset + win_len)]
+        frames.append(frame)
         offset += win_step
 
     # Pad last frame with zeros
     raw_frame = sound_wave.samples[offset::]
-    padded_frame = np.hstack((raw_frame, np.zeros(win_len - raw_frame.size))) * win_fun
-    frames.append(Window(padded_frame, sound_wave.fs))
+    padded_frame = np.hstack((raw_frame, np.zeros(win_len - raw_frame.size)))
+    frames.append(padded_frame)
 
     return frames
+
+
+def contains_speech(frame):
+    weights = np.linalg.pinv(frame)
+    return True
+
+
+def apply_window_function(frames, window_function):
+    new_frames = []
+    for frame in frames:
+        new_frames.append(frame * window_function)
+
+    return new_frames
 
 
 def hann(N):
