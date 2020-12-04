@@ -5,31 +5,42 @@ from src.conf import config
 
 
 def window(sound_wave):
-    frames = split(sound_wave)
+    """
+    Splits the signal into frames using window length and window overlap specified in config
+    The applied windowing function type is Hann
+
+    :param sound_wave: (SoundWave) sound wave to be windowed
+    :return: (List of Window) windowed signal with Hann windows
+    """
+
+    length = config.analysis['window_length']
+    overlap = config.analysis['window_overlap']
+
+    frames = split(sound_wave, length, overlap)
 
     win_len = frames[0].size
     win_fun = hann(win_len)
 
     windows = []
     for frame in frames:
-        if contains_speech(frame):
-            windows.append(Window(apply_window_function(frame, win_fun), sound_wave.fs))
+        windows.append(Window(frame * win_fun, sound_wave.fs))
 
     return windows
 
 
-def split(sound_wave):
+def split(sound_wave, length, overlap):
     """
-    Splits the signal into frames using window length and window overlap specified in config
-    The applied windowing function type is Hann
+    Splits the signal into frames with rectangular window
 
     :param sound_wave: (SoundWave) sound wave to be windowed
+    :param length: (float) length of window (ms)
+    :param overlap: (float) length of window overlap (ms)
     :return: (List of 1-D ndarrays) next frames from specified sound wave
     """
 
     # Load parameters from config
-    win_len = int(config.analysis['window_length'] * sound_wave.fs / 1000)
-    win_ovlap = int(config.analysis['window_overlap'] * sound_wave.fs / 1000)
+    win_len = int(length * sound_wave.fs / 1000)
+    win_ovlap = int(overlap * sound_wave.fs / 1000)
     win_step = win_len - win_ovlap
 
     # Prepare data for windowing
@@ -48,19 +59,6 @@ def split(sound_wave):
     frames.append(padded_frame)
 
     return frames
-
-
-def contains_speech(frame):
-    weights = np.linalg.pinv(frame)
-    return True
-
-
-def apply_window_function(frames, window_function):
-    new_frames = []
-    for frame in frames:
-        new_frames.append(frame * window_function)
-
-    return new_frames
 
 
 def hann(N):

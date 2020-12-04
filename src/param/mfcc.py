@@ -1,7 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
-from src.conf import config
 from src.classes.containers import FFTFrame, MelFrame
 
 

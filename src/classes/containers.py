@@ -53,7 +53,10 @@ class FFTFrame:
         return self.samples.size
 
     def spectrum(self):
-        return np.abs(self.samples)
+        return np.abs(self.samples) / np.sqrt(self.length())
+
+    def power_spectrum(self):
+        return np.power(self.spectrum(), 2) / self.length()
 
 
 class MelFrame:

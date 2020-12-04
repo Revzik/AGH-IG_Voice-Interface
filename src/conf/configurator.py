@@ -20,7 +20,9 @@ class Configurator:
         analysis = {
             'sampling_frequency': self.analysis_config.getint('preprocessing', 'sampling_frequency', fallback=8000),
             'preemphasis': self.analysis_config.getfloat('preprocessing', 'preemphasis', fallback=0.95),
-            'speech_threshold': self.analysis_config.getfloat('preprocessing', 'speech_threshold', fallback=0.4),
+            'energy_threshold': self.analysis_config.getfloat('vad', 'energy_threshold', fallback=40),
+            'f_threshold': self.analysis_config.getfloat('vad', 'f_threshold', fallback=185),
+            'sf_threshold': self.analysis_config.getfloat('vad', 'sf_threshold', fallback=5),
             'window_length': self.analysis_config.getint('parametrization', 'window_length', fallback=20),
             'window_overlap': self.analysis_config.getint('parametrization', 'window_overlap', fallback=10),
             'bottom_filterbank_frequency': self.analysis_config.getfloat('parametrization', 'bottom_filterbank_frequency', fallback=0),
