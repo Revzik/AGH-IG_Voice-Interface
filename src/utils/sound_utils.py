@@ -25,7 +25,7 @@ def preemphasis(sound_wave):
     return sound_wave
 
 
-def cut_noise(sound_wave):
+def detect_speech(sound_wave):
     """
     Cuts the noise out of the sound wave using VAD.
     The algorithm is based on paper:
@@ -89,15 +89,11 @@ def cut_noise(sound_wave):
 
         e_thresh = init_e_thresh * np.log(min_e)
 
-    for i in range(len(flags) - 10):
-        if not any(flags[i:(i + 10)]):
-            flags[i] = True
-        if all(flags[i:(i + 5)]):
-            flags[i] = False
+    # dodać 4 i 5
 
     new_frames = []
     for i, frame in enumerate(frames):
         if flags[i]:
             new_frames.append(frame)
 
-    return SoundWave(np.array(new_frames), sound_wave.fs, sound_wave.phrase)
+    return SoundWave(np.array(new_frames), sound_wave.fs, sound_wave.phrase), flags
