@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from src.conf import config
-from src.classes.containers import FFTFrame, MelFrame
+from src.classes.containers import FFTFrame, MelFrame, CepstralFrame
 
 
 def fft(window):
@@ -145,3 +145,24 @@ def logarithm(mel_filter_log):
     mel_filter_log.samples = np.log10(mel_filter_log.samples)
 
     return mel_filter_log
+
+
+def apply_dct(dct_filters_quantity, mel_filters_log):
+
+    n = mel_filters_log.n_filters
+    basis = np.empty((dct_filters_quantity, n))
+
+    "first basis element, different equation than further elements:"
+    basis[0, :] = 1.0 / np.sqrt(n)
+    "t - we iterate the cosine sum with 2t+1, t from 0 to n-1:"
+    t = np.arange(0, n)
+
+    for i in range(1, dct_filters_quantity):
+
+        basis[i, :] = np.sqrt(2.0 / n) * np.cos((np.pi * i) * (2.0 * t + 1.0)/(2.0 * n))
+
+    "multiplying by original log signal:"
+    cepstral_coeff = CepstralFrame(np.dot(basis, mel_filters_log.samples))
+
+    return cepstral_coeff
+
