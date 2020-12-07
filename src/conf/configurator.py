@@ -20,12 +20,12 @@ class Configurator:
         analysis = {
             'sampling_frequency': self.analysis_config.getint('preprocessing', 'sampling_frequency', fallback=8000),
             'preemphasis': self.analysis_config.getfloat('preprocessing', 'preemphasis', fallback=0.95),
-            'speech_threshold': self.analysis_config.getfloat('preprocessing', 'speech_threshold', fallback=0.4),
-            'window_length': self.analysis_config.getint('parametrization', 'window_length', fallback=20),
-            'window_overlap': self.analysis_config.getint('parametrization', 'window_overlap', fallback=10),
-            'bottom_filterbank_frequency': self.analysis_config.getfloat('parametrization', 'bottom_filterbank_frequency', fallback=0),
-            'top_filterbank_frequency': self.analysis_config.getfloat('parametrization', 'top_filterbank_frequency', fallback=4000),
-            'filterbank_size': self.analysis_config.getint('parametrization', 'filterbank_size', fallback=14)
+            'vad_threshold': self.analysis_config.getfloat('vad', 'vad_threshold', fallback=0.3),
+            'window_length': self.analysis_config.getint('mfcc', 'window_length', fallback=20),
+            'window_overlap': self.analysis_config.getint('mfcc', 'window_overlap', fallback=10),
+            'bottom_filterbank_frequency': self.analysis_config.getfloat('mfcc', 'bottom_filterbank_frequency', fallback=300),
+            'top_filterbank_frequency': self.analysis_config.getfloat('mfcc', 'top_filterbank_frequency', fallback=4000),
+            'filterbank_size': self.analysis_config.getint('mfcc', 'filterbank_size', fallback=14)
         }
         return analysis
 

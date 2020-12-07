@@ -1,8 +1,13 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
+from src.analyze import window
 from src.conf import config
 from src.classes.containers import FFTFrame, MelFrame, CepstralFrame
+
+
+def mfcc(sound_wave):
+    frames = window.window(sound_wave)
+
 
 
 def fft(window):
