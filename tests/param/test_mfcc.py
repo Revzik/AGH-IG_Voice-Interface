@@ -222,50 +222,39 @@ class MfccTest(unittest.TestCase):
 
     def test_dct(self):
 
-        # f_cos = 1000
+        f_cos = 1000
         # cepstr_coeff_quant = 13
         # lf_p = 300
         # hf_p = 4000
         # nf_p = 20
-        # fs_p = 8000
-        # l_p = 0.1
-        # n_p = int(fs_p * l_p)
-        # t_p = np.linspace(0, l_p, n_p, False)
-        # x_p = np.cos(2 * f_cos * np.pi * t_p)
-        # w_p = Window(x_p, fs_p)
+        fs_p = 8000
+        l_p = 0.1
+        n_p = int(fs_p * l_p)
+        t_p = np.linspace(0, l_p, n_p, False)
+        x_p = np.cos(2 * f_cos * np.pi * t_p)
+        cepstr_coeff = apply_dct(MelFrame(x_p, n_p))
+
+        #cheacking if the max value
+        self.assertGreater(cepstr_coeff[200], 15)
+        self.assertTrue(all([coeff < 1 for coeff in np.hstack((cepstr_coeff[::190], cepstr_coeff[210::]))]))
+
+        #w_p = Window(x_p, fs_p)
         # y_p = fft(w_p)
         #
-        # "I had to hardcode the function to use it on pure cosine wave " \
-        # "- cause it uses a class parameters that can't be omitted"
-        # n = y_p.samples.size
-        # basis = np.empty((cepstr_coeff_quant, n))
-        # basis[0, :] = 1.0 / np.sqrt(n)
-        # t = np.arange(0, n)
-        # for i in range(1, cepstr_coeff_quant):
-        #     basis[i, :] = np.sqrt(2.0 / n) * np.cos((np.pi * i) * (2.0 * t + 1.0) / (2.0 * n))
-        # cepstral_coeff = CepstralFrame(np.dot(basis, y_p.samples))
-        #
-        # fig, axes = plt.subplots(2, 1, figsize=(8, 9))
-        # axes[0].plot(y_p.samples)
-        # axes[0].set_title('power spectrum of original cosine signal')
-        # axes[1].plot(cepstral_coeff.samples)
-        # axes[1].set_title('Cepstral Coefficients')
-        # fig.show()
-        #
-        # "Here are the cepstral coeff for the processed cosine"
+        # #Here are the cepstral coeff for the processed cosine
         # m_p = apply_mel_filterbank(y_p, lf_p, hf_p, nf_p)
         # mel_filter_log = mfcc.logarithm(m_p)
-        # cepstral_coeff_2 = apply_dct(cepstr_coeff_quant, mel_filter_log)
+        # cepstral_coeff_2 = apply_dct(mel_filter_log)
         #
-        # fig2, axes2 = plt.subplots(3, 1, figsize=(8, 9))
-        # axes2[0].plot(y_p.samples)
-        # axes2[0].set_title('power spectrum of processed signal')
-        # axes2[1].plot(mel_filter_log.samples)
-        # axes2[1].set_title('Mel filters in logarithmic scale')
-        # axes2[2].plot(cepstral_coeff_2.samples)
-        # axes2[2].set_title('Cepstral Coefficients')
+        # fig, axes = plt.subplots(3, 1, figsize=(8, 9))
+        # axes[0].plot(y_p.samples)
+        # axes[0].set_title('power spectrum of processed signal')
+        # axes[1].plot(mel_filter_log.samples)
+        # axes[1].set_title('Mel filters in logarithmic scale')
+        # axes[2].plot(cepstral_coeff_2.samples)
+        # axes[2].set_title('Cepstral Coefficients')
         #
-        # fig2.show()
+        # fig.show()
 
 
 if __name__ == '__main__':
