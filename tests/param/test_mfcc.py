@@ -30,7 +30,7 @@ class MfccTest(unittest.TestCase):
         y1 = fft(x1)
 
         self.assertEqual(1024, y1.length())
-        self.assertLess(500, y1.spectrum()[20])
+        self.assertLess(15, y1.spectrum()[20])
         self.assertAlmostEqual(-np.pi/2, np.angle(y1[20]), 2)
         self.assertFalse(any(np.abs(f) > 1 for f in np.concatenate((y1[0:19], y1[21:1003], y1[1005:1024]))))
         self.assertEqual(1, y1.df)
@@ -44,7 +44,7 @@ class MfccTest(unittest.TestCase):
         y2 = fft(x2)
 
         self.assertEqual(2048, y2.length())
-        self.assertGreater(500, y2[205])
+        self.assertGreater(15, y2[205])
         self.assertFalse(any(np.abs(f) > 50 for f in np.concatenate((y2[0:198], y2[212:1836], y2[1850:2048]))))
 
         # transform 3: Kronecker delta, number of samples is not a power of 2
@@ -66,7 +66,7 @@ class MfccTest(unittest.TestCase):
         y4 = fft(x4)
 
         self.assertEqual(256, y4.length())
-        self.assertLess(80, y4.spectrum()[4])
+        self.assertLess(5, y4.spectrum()[4])
         self.assertLess(y4.spectrum()[8], y4.spectrum()[4])
         self.assertLess(y4.spectrum()[12], y4.spectrum()[8])
         self.assertLess(y4.spectrum()[16], y4.spectrum()[12])
@@ -74,7 +74,7 @@ class MfccTest(unittest.TestCase):
 
         # Just in case if spectrum needs to be displayed
         # s1 = y1.spectrum()
-        # f1 = np.arange(0, fs1 / 2, y1.df)
+        # f1 = np.arange(0, fs1, y1.df)
         # fig = plt.figure(1, figsize=(8, 6))
         # ax = plt.subplot(2, 1, 1)
         # ax.plot(t1, x1.samples)
@@ -83,7 +83,7 @@ class MfccTest(unittest.TestCase):
         # fig.show()
         #
         # s2 = y2.spectrum()
-        # f2 = np.arange(0, fs2 / 2, y2.df)
+        # f2 = np.arange(0, fs2, y2.df)
         # fig = plt.figure(2, figsize=(8, 6))
         # ax = plt.subplot(2, 1, 1)
         # ax.plot(t2, x2.samples)
@@ -92,7 +92,7 @@ class MfccTest(unittest.TestCase):
         # fig.show()
         #
         # s3 = y3.spectrum()
-        # f3 = np.arange(0, fs3 / 2, y3.df)
+        # f3 = np.arange(0, fs3, y3.df)
         # fig = plt.figure(3, figsize=(8, 6))
         # ax = plt.subplot(2, 1, 1)
         # ax.plot(x3.samples)
@@ -101,7 +101,7 @@ class MfccTest(unittest.TestCase):
         # fig.show()
         #
         # s4 = y4.spectrum()
-        # f4 = np.arange(0, fs4 / 2, y4.df)
+        # f4 = np.arange(0, fs4, y4.df)
         # fig = plt.figure(4, figsize=(8, 6))
         # ax = plt.subplot(2, 1, 1)
         # ax.plot(t4, x4.samples)
