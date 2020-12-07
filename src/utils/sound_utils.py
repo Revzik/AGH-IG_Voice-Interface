@@ -28,68 +28,39 @@ def preemphasis(sound_wave):
 def detect_speech(sound_wave):
     """
     Cuts the noise out of the sound wave using VAD.
-    The algorithm is based on paper:
-    "A Simple But Efficient Real-Time Voice Activity Detection Algorithm"
-    by M. H. Moattar and M. M. Homayoonpoor
-    https://www.researchgate.net/publication/255667085_A_simple_but_efficient_real-time_voice_activity_detection_algorithm
 
     :param sound_wave: (SoundWave) sound wave to be evaluated
     :return: (SoundWave) input with just speech frames
     """
 
-    init_e_thresh = config.analysis['energy_threshold']
-    init_f_thresh = config.analysis['f_threshold']
-    init_s_thresh = config.analysis['sf_threshold']
-
-    e_thresh = init_e_thresh
-
-    min_e = init_e_thresh
-    min_f = init_f_thresh
-    min_s = init_s_thresh
+    threshold = config.analysis['vad_threshold']
 
     frames = parametrizer.split(sound_wave, 10, 0)
-
     flags = [False] * len(frames)
-    silence_count = 0
 
-    for i, frame in enumerate(frames):
-        fft_frame = mfcc.fft(Window(frame, sound_wave.fs))
-        spectrum = fft_frame.spectrum()
-        power_spectrum = fft_frame.power_spectrum()
+    noise_variance = get_average_variance(frames[0:5])
 
-        energy = np.sum(np.power(np.abs(frame), 2))
-        f = np.argmax(spectrum) * fft_frame.df
-        sf = 10 * np.log10(sig.gmean(power_spectrum) / np.mean(power_spectrum))
-
-        if i < 30:
-            if min_e > energy:
-                min_e = energy
-            if min_f > f:
-                min_f = f
-            if min_s > sf:
-                min_s = sf
-
-        e_thresh = init_e_thresh * np.log(min_e)
-        f_thresh = init_f_thresh
-        s_thresh = init_s_thresh
-
-        counter = 0
-        if energy - min_e >= e_thresh:
-            counter += 1
-        if f - min_f >= f_thresh:
-            counter += 1
-        if sf - min_s >= s_thresh:
-            counter += 1
-
-        if counter > 1:
+    for i in range(2, len(frames) - 2):
+        if get_average_variance(frames[i - 2:i + 2]) - noise_variance > threshold:
             flags[i] = True
-        else:
-            silence_count += 1
-            min_e = ((silence_count * min_e) + energy) / (silence_count + 1)
 
-        e_thresh = init_e_thresh * np.log(min_e)
+    # remove too short noise fragments
+    noise_index = 0
+    for i in range(len(flags) - 1):
+        if flags[i] and not flags[i + 1]:
+            noise_index = i
+        if not flags[i] and flags[i + 1] and i - noise_index < 10:
+            for j in range(noise_index, i + 1):
+                flags[j] = True
 
-    # dodać 4 i 5
+    # remove too short speech fragments
+    speech_index = 0
+    for i in range(len(flags) - 1):
+        if not flags[i] and flags[i + 1]:
+            noise_index = i
+        if flags[i] and not flags[i + 1] and i - speech_index < 5:
+            for j in range(speech_index, i + 1):
+                flags[j] = False
 
     new_frames = []
     for i, frame in enumerate(frames):
@@ -97,3 +68,10 @@ def detect_speech(sound_wave):
             new_frames.append(frame)
 
     return SoundWave(np.array(new_frames), sound_wave.fs, sound_wave.phrase), flags
+
+
+def get_average_variance(frames):
+    variance = 0
+    for frame in frames:
+        variance += np.var(frame)
+    return variance / len(frames)
