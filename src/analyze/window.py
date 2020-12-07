@@ -47,7 +47,7 @@ def split(sound_wave, length, overlap):
     frames = []
     offset = 0
 
-    # Chop the signal (and apply window) except last frame
+    # Chop the signal except last frame
     while offset < sound_wave.length() - win_len:
         frame = sound_wave.samples[offset:(offset + win_len)]
         frames.append(frame)

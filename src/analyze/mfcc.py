@@ -1,6 +1,12 @@
 import numpy as np
 
+from src.analyze import window
 from src.classes.containers import FFTFrame, MelFrame
+
+
+def mfcc(sound_wave):
+    frames = window.window(sound_wave)
+
 
 
 def fft(window):

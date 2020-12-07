@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from src.classes.containers import *
 from src.conf import config
-from src.param import parametrizer
+from src.analyze import window
 from src.utils import sound_utils
 
 
@@ -17,7 +17,7 @@ class ParametrizerTest(unittest.TestCase):
 
         sound = SoundWave(wav_data, fs, "naprzod")
 
-        frames = parametrizer.window(sound)
+        frames = window.window(sound)
 
         self.assertTrue(all([frames[0].length() == f.length() for f in frames]))
 
@@ -53,7 +53,7 @@ class ParametrizerTest(unittest.TestCase):
 
     def test_hann(self):
         win_len = 1000
-        win_fun = parametrizer.hann(win_len)
+        win_fun = window.hann(win_len)
 
         self.assertAlmostEqual(0, win_fun[0], 3)
         self.assertAlmostEqual(0, win_fun[win_len - 1], 3)

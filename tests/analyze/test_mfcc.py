@@ -2,10 +2,10 @@ import unittest
 import numpy as np
 import matplotlib.pyplot as plt
 
-from src.param.mfcc import *
+from src.analyze.mfcc import *
 from src.classes.containers import Window
 from src.classes.containers import MelFrame
-from src.param import mfcc
+from src.analyze import mfcc
 
 
 class MfccTest(unittest.TestCase):

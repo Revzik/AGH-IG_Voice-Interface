@@ -1,9 +1,8 @@
 import numpy as np
-import scipy.stats.mstats as sig
 
-from src.classes.containers import Window, SoundWave
+from src.classes.containers import SoundWave
 from src.conf import config
-from src.param import parametrizer, mfcc
+from src.analyze import window
 
 
 def normalize(sound_wave):
@@ -35,7 +34,7 @@ def detect_speech(sound_wave):
 
     threshold = config.analysis['vad_threshold']
 
-    frames = parametrizer.split(sound_wave, 10, 0)
+    frames = window.split(sound_wave, 10, 0)
     flags = [False] * len(frames)
 
     # Detect speech based on variance difference between noise frames and speech frames
