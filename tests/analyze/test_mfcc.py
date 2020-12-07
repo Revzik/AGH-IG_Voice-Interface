@@ -3,12 +3,26 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from src.analyze.mfcc import *
-from src.classes.containers import Window
-from src.classes.containers import MelFrame
+from src.classes.containers import Window, MelFrame, SoundWave
 from src.analyze import mfcc
 
 
 class MfccTest(unittest.TestCase):
+    def tearDown(self):
+        config.reload()
+
+    def test_mfcc(self):
+        config.analysis['filterbank_size'] = 14
+        fs = 8000
+        dur = 5
+        t = np.linspace(0, dur, dur * fs)
+
+        sound_wave = SoundWave(np.random.randn(t.size) + np.cos(2 * np.pi * t * 100), fs, 'test')
+        cepstrum, phrase = mfcc.mfcc(sound_wave)
+
+        self.assertEqual(499, len(cepstrum))
+        self.assertEqual(14, cepstrum[0].length())
+
     def test_first_power_of_2(self):
         x1 = 4
         x2 = 11
@@ -169,9 +183,9 @@ class MfccTest(unittest.TestCase):
         # fig.show()
 
     def test_mel_filterbank(self):
-        lf1 = 300
-        hf1 = 4000
-        np1 = 20
+        config.analysis['bottom_filterbank_frequency'] = 300
+        config.analysis['top_filterbank_frequency'] = 4000
+        config.analysis['filterbank_size'] = 20
         fs1 = 8000
         l1 = 0.1
         n1 = int(fs1 * l1)
@@ -179,7 +193,7 @@ class MfccTest(unittest.TestCase):
         x1 = Window(np.sin(2 * 1000 * np.pi * t1), fs1)
         y1 = fft(x1)
 
-        mf1 = apply_mel_filterbank(y1, lf1, hf1, np1)
+        mf1 = apply_mel_filterbank(y1)
         self.assertTrue([mf1[6] >= m for m in mf1.samples])
 
         # Plots just in case
@@ -187,6 +201,9 @@ class MfccTest(unittest.TestCase):
         # lf_p = 300
         # hf_p = 4000
         # nf_p = 20
+        # config.analysis['bottom_filterbank_frequency'] = lf_p
+        # config.analysis['top_filterbank_frequency'] = hf_p
+        # config.analysis['filterbank_size'] = nf_p
         # fs_p = 8000
         # l_p = 0.1
         # n_p = int(fs_p * l_p)
@@ -195,7 +212,7 @@ class MfccTest(unittest.TestCase):
         # y_p = fft(x_p)
         #
         # mf_p = get_filter_frequencies(lf_p, hf_p, nf_p)
-        # m_p = apply_mel_filterbank(y_p, lf_p, hf_p, nf_p)
+        # m_p = apply_mel_filterbank(y_p)
         #
         # fig, axes = plt.subplots(3, 1, figsize=(8, 9))
         # f_p = np.arange(0, fs_p, y_p.df)
@@ -210,7 +227,6 @@ class MfccTest(unittest.TestCase):
         # axes[2].set_title('Mel coefficients')
         # fig.show()
 
-
     def test_logarithm(self):
 
         mel_filter = MelFrame(np.array([10,100,1000]))
@@ -219,6 +235,7 @@ class MfccTest(unittest.TestCase):
         self.assertEqual(1, mel_filter_log[0])
         self.assertEqual(2, mel_filter_log[1])
         self.assertEqual(3, mel_filter_log[2])
+
 
 if __name__ == '__main__':
     unittest.main()
