@@ -30,7 +30,7 @@ def detect_speech(sound_wave):
     Cuts the noise out of the sound wave using VAD.
 
     :param sound_wave: (SoundWave) sound wave to be evaluated
-    :return: (SoundWave) input with just speech frames
+    :return: (SoundWave) input with just speech frames, (List of boolean) VAD output
     """
 
     threshold = config.analysis['vad_threshold']
@@ -38,6 +38,7 @@ def detect_speech(sound_wave):
     frames = parametrizer.split(sound_wave, 10, 0)
     flags = [False] * len(frames)
 
+    # Detect speech based on variance difference between noise frames and speech frames
     noise_variance = get_average_variance(frames[0:5])
 
     for i in range(2, len(frames) - 2):
@@ -57,11 +58,12 @@ def detect_speech(sound_wave):
     speech_index = 0
     for i in range(len(flags) - 1):
         if not flags[i] and flags[i + 1]:
-            noise_index = i
+            speech_index = i
         if flags[i] and not flags[i + 1] and i - speech_index < 5:
             for j in range(speech_index, i + 1):
                 flags[j] = False
 
+    # Split the signal according to the VAD
     new_frames = []
     for i, frame in enumerate(frames):
         if flags[i]:
@@ -71,6 +73,12 @@ def detect_speech(sound_wave):
 
 
 def get_average_variance(frames):
+    """
+    Calculates the average variance in specified frames
+
+    :param frames: (List of 1-D ndarrays) input frames
+    :return: (Float) mean variance
+    """
     variance = 0
     for frame in frames:
         variance += np.var(frame)
