@@ -18,7 +18,7 @@ def mfcc(sound_wave):
     cepstrum = []
 
     for frame in frames:
-        cepstrum.append(logarithm(apply_mel_filterbank(fft(frame))))
+        cepstrum.append(apply_dct(logarithm(apply_mel_filterbank(fft(frame)))))
 
     return cepstrum, sound_wave.phrase
 

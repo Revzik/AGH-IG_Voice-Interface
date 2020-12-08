@@ -1,4 +1,3 @@
-import numpy as np
 import scipy.signal as sig
 import math
 import numpy as np

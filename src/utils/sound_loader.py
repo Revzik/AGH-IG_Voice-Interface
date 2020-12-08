@@ -3,15 +3,21 @@ import glob
 import soundfile as sf
 
 from src.classes.containers import SoundWave
-from src.conf import config
 
 
-def load_sound_file():
+def load_sound_file(path):
     sound_list = []
-    print("Please enter the path for the folder with waves: ")
-    paths = input()
-    for i, filename in enumerate(glob.glob(os.path.join(paths, '*.wav'))):
-        wav_data, fs = sf.read(filename)
-        sound_list.append(SoundWave(wav_data, fs, os.listdir(paths)[i][:-4]))
+
+    if os.path.isdir(path):
+        for i, filename in enumerate(glob.glob(os.path.join(path, '*.wav'))):
+            wav_data, fs = sf.read(filename)
+            if len(wav_data.shape) > 1:
+                wav_data = wav_data[0, :]
+            sound_list.append(SoundWave(wav_data, fs, os.listdir(path)[i][:-4]))
+    else:
+        wav_data, fs = sf.read(path)
+        if len(wav_data.shape) > 1:
+            wav_data = wav_data[0, :]
+        sound_list.append(SoundWave(wav_data, fs, path[:-4]))
 
     return sound_list

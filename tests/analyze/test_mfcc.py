@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from src.analyze.mfcc import *
-from src.classes.containers import Window, MelFrame, SoundWave
+from src.classes.containers import Window, MelFrame, SoundWave, CepstralFrame
 from src.analyze import mfcc
 
 
@@ -21,7 +21,8 @@ class MfccTest(unittest.TestCase):
         cepstrum, phrase = mfcc.mfcc(sound_wave)
 
         self.assertEqual(499, len(cepstrum))
-        self.assertEqual(14, cepstrum[0].length())
+        self.assertTrue(all([c.length() == 14 for c in cepstrum]))
+        self.assertTrue(all([type(c) == CepstralFrame for c in cepstrum]))
 
     def test_first_power_of_2(self):
         x1 = 4
