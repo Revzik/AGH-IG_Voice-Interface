@@ -220,5 +220,42 @@ class MfccTest(unittest.TestCase):
         self.assertEqual(2, mel_filter_log[1])
         self.assertEqual(3, mel_filter_log[2])
 
+    def test_dct(self):
+
+        f_cos = 1000
+        # cepstr_coeff_quant = 13
+        # lf_p = 300
+        # hf_p = 4000
+        # nf_p = 20
+        fs_p = 8000
+        l_p = 0.1
+        n_p = int(fs_p * l_p)
+        t_p = np.linspace(0, l_p, n_p, False)
+        x_p = np.cos(2 * f_cos * np.pi * t_p)
+        cepstr_coeff = apply_dct(MelFrame(x_p, n_p))
+
+        #cheacking if the max value
+        self.assertGreater(cepstr_coeff[200], 15)
+        self.assertTrue(all([coeff < 1 for coeff in np.hstack((cepstr_coeff[::190], cepstr_coeff[210::]))]))
+
+        #w_p = Window(x_p, fs_p)
+        # y_p = fft(w_p)
+        #
+        # #Here are the cepstral coeff for the processed cosine
+        # m_p = apply_mel_filterbank(y_p, lf_p, hf_p, nf_p)
+        # mel_filter_log = mfcc.logarithm(m_p)
+        # cepstral_coeff_2 = apply_dct(mel_filter_log)
+        #
+        # fig, axes = plt.subplots(3, 1, figsize=(8, 9))
+        # axes[0].plot(y_p.samples)
+        # axes[0].set_title('power spectrum of processed signal')
+        # axes[1].plot(mel_filter_log.samples)
+        # axes[1].set_title('Mel filters in logarithmic scale')
+        # axes[2].plot(cepstral_coeff_2.samples)
+        # axes[2].set_title('Cepstral Coefficients')
+        #
+        # fig.show()
+
+
 if __name__ == '__main__':
     unittest.main()
