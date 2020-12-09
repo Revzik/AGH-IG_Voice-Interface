@@ -73,6 +73,9 @@ class MelFrame:
     def __setitem__(self, i, value):
         self.samples[i] = value
 
+    def length(self):
+        return self.samples.size
+
 
 class CepstralFrame:
     def __init__(self, samples):

@@ -47,6 +47,20 @@ class SoundUtilsTest(unittest.TestCase):
         self.assertLess(spectrum_sound_wave_after_pre[0], spectrum_sound_wave[0])
         self.assertLess(spectrum_sound_wave_after_pre[0], spectrum_sound_wave_after_pre[int(sound_wave.length()/2)])
 
+    def test_remove_dc_offset(self):
+        sound_list = [
+            SoundWave(1 + np.sin(8*np.pi*np.linspace(0, 1, 1000, False)), 1000, "a"),
+            SoundWave(-0.5 + np.sin(2*np.pi*np.linspace(0, 1, 1000, False)), 1000, "b"),
+            SoundWave(np.arange(0, 10), 1000, "c"),
+            SoundWave(np.ones(100), 1000, "d")
+        ]
+
+        for sound_wave in sound_list:
+            sound_wave = sound_utils.remove_dc_offset(sound_wave)
+
+            self.assertAlmostEqual(np.mean(sound_wave.samples), 0, 15)
+
+
     def test_detect_speech(self):
         # Theoretical test on artificial speech sample with noise
         fs = 8000

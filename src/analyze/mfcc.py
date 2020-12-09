@@ -1,25 +1,38 @@
 import numpy as np
 
-from src.analyze import window
 from src.conf import config
+from src.analyze import window
 from src.classes.containers import FFTFrame, MelFrame, CepstralFrame
 
 
 def mfcc(sound_wave):
+    """
+    Computes mfcc of the signal based on parameters in config
+
+    :param sound_wave: (SoundWave) audio clip to parametrize
+    :return: (List of MelFrame) MFCC parameters for each frame
+             (string) phrase in the sound_wave
+    """
+
     frames = window.window(sound_wave)
+    cepstrum = []
+
+    for frame in frames:
+        cepstrum.append(apply_dct(logarithm(apply_mel_filterbank(fft(frame)))))
+
+    return cepstrum, sound_wave.phrase
 
 
-
-def fft(window):
+def fft(frame):
     """
     Computes FFT using recursive Cooley-Tukey algorithm
 
-    :param window: (Window) signal array to transform.
+    :param frame: (Window) signal array to transform.
     If length is not a power of 2, then it gets padded with zeros.
     :return: (FFTFrame) FFT of x
     """
 
-    x = window.samples
+    x = frame.samples
 
     if x.size == 0:
         return x
@@ -29,7 +42,7 @@ def fft(window):
 
     y = cooley_tukey(x)
 
-    return FFTFrame(y, window.fs)
+    return FFTFrame(y, frame.fs)
 
 
 def cooley_tukey(x):
@@ -69,16 +82,17 @@ def first_power_of_2(x):
     return power
 
 
-def apply_mel_filterbank(fft_frame, bottom_frequency, top_frequency, n_filters):
+def apply_mel_filterbank(fft_frame):
     """
     Generates and applies mel filterbank onto a given frequency spectrum
 
     :param fft_frame: (FFTFrame) frame to be converted into mel coefficients
-    :param bottom_frequency: (float) bottom frequency for the mel filter bank
-    :param top_frequency: (float) top frequency for the mel filter bank
-    :param n_filters: (int) number of mel filters
     :return: (MelFrame) mel coefficients of a given frame
     """
+
+    bottom_frequency = config.analysis['bottom_filterbank_frequency']
+    top_frequency = config.analysis['top_filterbank_frequency']
+    n_filters = config.analysis['filterbank_size']
 
     spectrum = fft_frame.spectrum()
     filter_frequencies = get_filter_frequencies(bottom_frequency, top_frequency, n_filters)
@@ -104,7 +118,6 @@ def get_filter_frequencies(f_min, f_max, n_filters):
     :param f_min: minimum frequency for filterbank
     :param f_max: maximum frequency for filterbank
     :param n_filters: number of filters
-    :param n_bins: number of spectrum bins
     :return: (1-D ndarray) filter frequencies in Hertz
     """
 
@@ -120,10 +133,10 @@ def get_filter_bins(filter_freq, n_bins, fs):
     """
     Returns numbers of frequency bins for a specific fft_frame
 
-    :param filter_freq:
-    :param n_bins:
-    :param fs:
-    :return:
+    :param filter_freq: (1-D ndarray) middle frequencies of mel filters
+    :param n_bins: (int) number of frequency bins
+    :param fs: (float) sampling frequency
+    :return: (1-D ndarray) corresponding frequency bins for filter frequencies
     """
 
     return np.array([int(np.round(f * n_bins / fs)) for f in filter_freq])
@@ -170,4 +183,3 @@ def apply_dct(mel_filters_log):
     cepstral_coeff = CepstralFrame(np.dot(basis, mel_filters_log.samples))
 
     return cepstral_coeff
-
