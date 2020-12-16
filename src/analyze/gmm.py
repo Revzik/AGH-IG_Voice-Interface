@@ -56,13 +56,13 @@ class GaussianMixture:
         :param data: (2-D ndarray) MFCC features of scored sample
         :return: (float) log-likelihood of the data for specific model
         """
-
+        # TODO: Investigate the function - log likelihood is not correct
         log_likelihood = 0
 
-        for i in data.shape[0]:
+        for i in range(data.shape[0]):
 
             likelihood = 0
-            for j in self.k:
+            for j in range(self.k):
                 likelihood += self.pi[j] * self.gaussian(data[i, :], j)
 
             log_likelihood += np.log(likelihood)
@@ -74,12 +74,12 @@ class GaussianMixture:
         Computes the probability of data to be from a specific gaussian. The points in data are 1-D
 
         :param data: (1-D ndarray) sample to be evaluated
-        :param i: (int) index of the gaussian (0 < i < k)
+        :param i: (int) index of the gaussian (0 <= i < k)
         :return: likelihood of x to be from gaussian i
         """
 
-        return 1 / np.sqrt(2 * np.pi * self.sigma[i]) *\
-               np.exp((data - self.mi[i]) * (data - self.mi[i]).T / (-2 * self.sigma[i]))
+        return 1 / np.sqrt(2 * np.pi * self.sigma[i] ** 2) * \
+               np.exp(np.sum((data - self.mi[i]) ** 2) / (-2 * self.sigma[i]))
 
 
 def concatenate(data):
