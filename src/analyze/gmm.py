@@ -2,33 +2,26 @@ import numpy as np
 
 
 class GaussianMixture:
-    def __init__(self, k, data=None):
+    def __init__(self, k, X=None):
         """
         Initializes a gaussian mixture model for MFCC data.
         If data is None, then initial gaussian parameters will be random.
         If data is specified then initial gaussian parameters will be chosen randomly based on the data specified.
         Gaussian parameters:
         mi - (1-D ndarray) mean values of each gaussian
-        sigma - (1-D ndarray) variances of each gaussian
+        cov - (1-D ndarray) variances of each gaussian
         pi - (1-D ndarray) weights of each gaussian
 
         :param k: (int) number of gaussians
-        :param data: (List of Lists of CepstralFrame) CepstralFrames for each sample
+        :param X: (2-D ndarray) data samples, where:
+                rows - consecutive samples
+                columns - components of each sample
         """
-
         self.k = k
-        if data is None:
-            self.mi = 10 * np.random.randn(k)
-            self.sigma = 10 * np.random.randn(k)
-            self.pi = GaussianMixture.normalize(np.random.randn(k))
-        else:
-            data = concatenate(data)
-            low = np.amin(data)
-            high = np.amax(data)
-
-            self.mi = (high - low) * np.random.rand(k) + low
-            self.sigma = (high - low) * np.random.randn(k) / k
-            self.pi = GaussianMixture.normalize(np.random.randn(k))
+        self.clusters = []
+        for i in range(self.k):
+            self.clusters.append(Cluster(X))
+            self.pi = GaussianMixture.normalize(np.random.rand(self.k))
 
     @staticmethod
     def normalize(pi):
@@ -41,66 +34,48 @@ class GaussianMixture:
 
         return pi / np.sum(pi)
 
-    def fit(self, data):
+    def fit(self, X):
         """
         Trains the model with data using EM algorithm.
 
-        :param data: (2-D ndarray) MFCC features for the model
+        :param X: (2-D ndarray) MFCC features for the model
         """
         pass
 
-    def score(self, data):
+    def score(self, X):
         """
         Computes the log-likelihood of input data for trained model.
 
-        :param data: (2-D ndarray) MFCC features of scored sample
+        :param X: (2-D ndarray) MFCC features of scored sample
         :return: (float) log-likelihood of the data for specific model
         """
-        # TODO: Investigate the function - log likelihood is not correct
-        log_likelihood = 0
+        pass
 
-        for i in range(data.shape[0]):
-
-            likelihood = 0
-            for j in range(self.k):
-                likelihood += self.pi[j] * self.gaussian(data[i, :], j)
-
-            log_likelihood += np.log(likelihood)
-
-        return log_likelihood
-
-    def gaussian(self, data, i):
+    def log_gaussian(self, X, i):
         """
-        Computes the probability of data to be from a specific gaussian. The points in data are 1-D
+        Computes the log-likelihood of data to be from a specific gaussian. The points in data are 1-D
 
-        :param data: (1-D ndarray) sample to be evaluated
+        :param X: (1-D ndarray) sample to be evaluated
         :param i: (int) index of the gaussian (0 <= i < k)
         :return: likelihood of x to be from gaussian i
         """
+        pass
 
-        return 1 / np.sqrt(2 * np.pi * self.sigma[i] ** 2) * \
-               np.exp(np.sum((data - self.mi[i]) ** 2) / (-2 * self.sigma[i]))
+    def gaussian(self, X, i):
+        """
+        Computes the likelihood of data to be from a specific gaussian. The points in data are 1-D
+
+        :param X: (1-D ndarray) sample to be evaluated
+        :param i: (int) index of the gaussian (0 <= i < k)
+        :return: likelihood of x to be from gaussian i
+        """
+        pass
 
 
-def concatenate(data):
-    """
-    Concatenates data specified in the parameter to fit the input shape of GaussianMixture.
-
-    :param data: (List of Lists of CepstralFrame) MFCC features for each word. Each list entry is MFCC of another sample
-    :return: (2-D ndarray) concatenated data:
-        rows - MFCC frames
-        columns - features
-    """
-
-    frame_count = 0
-    for sample in data:
-        frame_count += len(sample)
-
-    con_data = np.empty((frame_count, data[0].length()))
-    i = 0
-    for sample in data:
-        for frame in sample:
-            con_data[i] = frame.samples
-            i += 1
-
-    return con_data
+class Cluster:
+    def __init__(self, X):
+        dim = X.shape[1]
+        min_X = np.min(X, axis=1)
+        max_X = np.max(X, axis=1)
+        self.mi = np.random.rand(dim) * (max_X - min_X) + min_X
+        self.cov = np.identity(dim)
