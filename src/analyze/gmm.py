@@ -50,34 +50,30 @@ class GaussianMixture:
         :param X: (2-D ndarray) MFCC features of scored sample
         :return: (float) log-likelihood of the data for specific model
         """
-        pass
+        totals = np.zeros((X.shape[0], 1), dtype=np.float64)
+        for cluster in self.clusters:
+            totals += cluster.gaussian(X)
 
-    def log_gaussian(self, X, i):
-        """
-        Computes the log-likelihood of data to be from a specific gaussian. The points in data are 1-D
-
-        :param X: (1-D ndarray) sample to be evaluated
-        :param i: (int) index of the gaussian (0 <= i < k)
-        :return: likelihood of x to be from gaussian i
-        """
-        pass
-
-    def gaussian(self, X, i):
-        """
-        Computes the likelihood of data to be from a specific gaussian. The points in data are 1-D
-
-        :param X: (1-D ndarray) sample to be evaluated
-        :param i: (int) index of the gaussian (0 <= i < k)
-        :return: likelihood of x to be from gaussian i
-        """
-        pass
+        return np.sum(np.log(totals))
 
 
 class Cluster:
     def __init__(self, X):
-        dim = X.shape[1]
+        self.dim = X.shape[1]
         min_X = np.min(X, axis=1)
         max_X = np.max(X, axis=1)
-        self.mi = np.random.rand(dim) * (max_X - min_X) + min_X
-        self.cov = np.identity(dim, dtype=np.float64)
+        self.mu = np.random.rand(self.dim) * (max_X - min_X) + min_X
+        self.cov = np.identity(self.dim, dtype=np.float64)
         self.pi = np.random.rand()
+
+    def gaussian(self, X):
+        """
+        Computes the likelihoods for data samples X to be from this cluster, multiplied by its weight
+
+        :param X: (2-D ndarray) MFCC features of scored sample
+        :return: likelihoods for each sample
+        """
+        diff = (X - self.mu).T
+        fraction = 1 / ((2 * np.pi) ** (self.dim / 2) * np.linalg.det(self.cov) ** 0.5)
+        exponential = np.exp(-0.5 * np.dot(np.dot(diff.T, np.linalg.inv(self.cov)), diff))
+        return self.pi * np.diagonal(fraction * exponential).reshape(-1, 1)
