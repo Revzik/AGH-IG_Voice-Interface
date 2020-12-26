@@ -7,7 +7,7 @@ class GaussianMixture:
         Initializes a gaussian mixture model for MFCC data.
         If data is None, then initial gaussian parameters will be random.
         If data is specified then initial gaussian parameters will be chosen randomly based on the data specified.
-        Gaussian parameters:
+        Gaussian cluster parameters:
         mi - (1-D ndarray) mean values of each gaussian
         cov - (1-D ndarray) variances of each gaussian
         pi - (1-D ndarray) weights of each gaussian
@@ -21,18 +21,19 @@ class GaussianMixture:
         self.clusters = []
         for i in range(self.k):
             self.clusters.append(Cluster(X))
-            self.pi = GaussianMixture.normalize(np.random.rand(self.k))
 
-    @staticmethod
-    def normalize(pi):
+        self.normalize_clusters()
+
+    def normalize_clusters(self):
         """
-        Normalizes the array specified so sum if its components is 1. Used to compute weights for GMM.
-
-        :param pi: (1-D ndarray) input array
-        :return: (1-D ndarray) pi with the sum of components equal to 1
+        Normalizes the clusters weights so they sum up to 1. Used to compute weights for GMM.
         """
+        total_weight = 0.0
+        for cluster in self.clusters:
+            total_weight += cluster.pi
 
-        return pi / np.sum(pi)
+        for cluster in self.clusters:
+            cluster.pi /= total_weight
 
     def fit(self, X):
         """
@@ -78,4 +79,5 @@ class Cluster:
         min_X = np.min(X, axis=1)
         max_X = np.max(X, axis=1)
         self.mi = np.random.rand(dim) * (max_X - min_X) + min_X
-        self.cov = np.identity(dim)
+        self.cov = np.identity(dim, dtype=np.float64)
+        self.pi = np.random.rand()
