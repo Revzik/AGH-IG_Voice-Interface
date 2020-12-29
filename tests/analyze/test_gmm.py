@@ -49,7 +49,7 @@ class GMMTest(unittest.TestCase):
         for i in range(mu_indexes.size):
             self.assertEqual(max_scores[i], scores[mu_indexes[i], i])
 
-        fig, axes = plt.subplots(2, 1, figsize=(8, 6))
-        axes[0].plot(data, scores[:, 0])
-        axes[1].plot(data, scores[:, 1])
-        fig.show()
+        # fig, axes = plt.subplots(2, 1, figsize=(8, 6))
+        # axes[0].plot(data, scores[:, 0])
+        # axes[1].plot(data, scores[:, 1])
+        # fig.show()
