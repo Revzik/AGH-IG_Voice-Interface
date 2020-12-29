@@ -60,8 +60,8 @@ class GaussianMixture:
 class Cluster:
     def __init__(self, X):
         self.dim = X.shape[1]
-        min_X = np.min(X, axis=1)
-        max_X = np.max(X, axis=1)
+        min_X = np.min(X, axis=0)
+        max_X = np.max(X, axis=0)
         self.mu = np.random.rand(self.dim) * (max_X - min_X) + min_X
         self.cov = np.identity(self.dim, dtype=np.float64)
         self.pi = np.random.rand()
