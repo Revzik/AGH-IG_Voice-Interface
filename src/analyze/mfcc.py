@@ -2,7 +2,6 @@ import numpy as np
 
 from src.conf import config
 from src.analyze import window
-from src.classes.containers import FFTFrame, MelFrame, CepstralFrame
 
 
 def mfcc(sound_wave):

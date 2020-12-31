@@ -1,6 +1,5 @@
 import numpy as np
 
-from src.classes.containers import Window
 from src.conf import config
 
 

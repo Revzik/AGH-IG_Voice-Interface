@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from src.analyze.mfcc import *
-from src.classes.containers import Window, MelFrame, SoundWave, CepstralFrame
+from src.classes.containers import SoundWave
 from src.analyze import mfcc
 
 
@@ -20,9 +20,8 @@ class MfccTest(unittest.TestCase):
         sound_wave = SoundWave(np.random.randn(t.size) + np.cos(2 * np.pi * t * 100), fs, 'test')
         cepstrum, phrase = mfcc.mfcc(sound_wave)
 
-        self.assertEqual(499, len(cepstrum))
-        self.assertTrue(all([c.length() == 14 for c in cepstrum]))
-        self.assertTrue(all([type(c) == CepstralFrame for c in cepstrum]))
+        self.assertEqual(499, cepstrum.shape[0])
+        self.assertEqual(14, cepstrum.shape[1])
 
     def test_first_power_of_2(self):
         x1 = 4
@@ -41,35 +40,37 @@ class MfccTest(unittest.TestCase):
         l1 = 1
         n1 = int(fs1 * l1)
         t1 = np.linspace(0, l1, n1, False)
-        x1 = Window(np.sin(2 * 20 * np.pi * t1), fs1)
+        x1 = np.sin(2 * 20 * np.pi * t1)
         y1 = fft(x1)
+        s1 = fft_spectrum(y1)
 
-        self.assertEqual(1024, y1.length())
-        self.assertLess(15, y1.spectrum()[20])
+        self.assertEqual(1024, y1.size)
+        self.assertLess(0.4, s1[20])
         self.assertAlmostEqual(-np.pi/2, np.angle(y1[20]), 2)
         self.assertFalse(any(np.abs(f) > 1 for f in np.concatenate((y1[0:19], y1[21:1003], y1[1005:1024]))))
-        self.assertEqual(1, y1.df)
 
         # transform 2: 100 Hz cosine, number of samples is not a power of 2
         fs2 = 1000
         l2 = 1.5
         n2 = int(fs2 * l2)
         t2 = np.linspace(0, l2, n2, False)
-        x2 = Window(np.sin(2 * 100 * np.pi * t2), fs2)
+        x2 = np.sin(2 * 100 * np.pi * t2)
         y2 = fft(x2)
+        s2 = fft_spectrum(y2)
 
-        self.assertEqual(2048, y2.length())
-        self.assertGreater(15, y2[205])
+        self.assertEqual(2048, y2.size)
+        self.assertLess(0.3, s2[205])
         self.assertFalse(any(np.abs(f) > 50 for f in np.concatenate((y2[0:198], y2[212:1836], y2[1850:2048]))))
 
         # transform 3: Kronecker delta, number of samples is not a power of 2
         n3 = 101
         fs3 = 101
-        x3 = Window(np.zeros(n3), fs3)
+        x3 = np.zeros(n3)
         x3[50] = 1
         y3 = fft(x3)
+        s3 = fft_spectrum(y3)
 
-        self.assertEqual(128, y3.length())
+        self.assertEqual(128, y3.size)
         self.assertFalse(any(np.abs(f) > 1.01 or np.abs(f) < 0.99 for f in y3))
 
         # transform 4: sawtooth wave, number of samples is a power of 2
@@ -77,49 +78,46 @@ class MfccTest(unittest.TestCase):
         l4 = 2
         n4 = int(fs4 * l4)
         t4 = np.linspace(0, l4, n4, False)
-        x4 = Window(2 * (t4/0.5 - np.floor(0.5 + t4/0.5)), fs4)
+        x4 = 2 * (t4/0.5 - np.floor(0.5 + t4/0.5))
         y4 = fft(x4)
+        s4 = fft_spectrum(y4)
 
-        self.assertEqual(256, y4.length())
-        self.assertLess(5, y4.spectrum()[4])
-        self.assertLess(y4.spectrum()[8], y4.spectrum()[4])
-        self.assertLess(y4.spectrum()[12], y4.spectrum()[8])
-        self.assertLess(y4.spectrum()[16], y4.spectrum()[12])
-        self.assertLess(y4.spectrum()[20], y4.spectrum()[16])
+        self.assertEqual(256, y4.size)
+        self.assertLess(0.3, s4[4])
+        self.assertLess(s4[8], s4[4])
+        self.assertLess(s4[12], s4[8])
+        self.assertLess(s4[16], s4[12])
+        self.assertLess(s4[20], s4[16])
 
         # Just in case if spectrum needs to be displayed
-        # s1 = y1.spectrum()
-        # f1 = np.arange(0, fs1, y1.df)
+        # f1 = np.arange(0, fs1, fs1 / y1.size)
         # fig = plt.figure(1, figsize=(8, 6))
         # ax = plt.subplot(2, 1, 1)
-        # ax.plot(t1, x1.samples)
+        # ax.plot(t1, x1)
         # ax = plt.subplot(2, 1, 2)
         # ax.plot(f1, s1)
         # fig.show()
         #
-        # s2 = y2.spectrum()
-        # f2 = np.arange(0, fs2, y2.df)
+        # f2 = np.arange(0, fs2, fs2 / y2.size)
         # fig = plt.figure(2, figsize=(8, 6))
         # ax = plt.subplot(2, 1, 1)
-        # ax.plot(t2, x2.samples)
+        # ax.plot(t2, x2)
         # ax = plt.subplot(2, 1, 2)
         # ax.plot(f2, s2)
         # fig.show()
         #
-        # s3 = y3.spectrum()
-        # f3 = np.arange(0, fs3, y3.df)
+        # f3 = np.arange(0, fs3, fs3 / y3.size)
         # fig = plt.figure(3, figsize=(8, 6))
         # ax = plt.subplot(2, 1, 1)
-        # ax.plot(x3.samples)
+        # ax.plot(x3)
         # ax = plt.subplot(2, 1, 2)
         # ax.plot(f3, s3)
         # fig.show()
         #
-        # s4 = y4.spectrum()
-        # f4 = np.arange(0, fs4, y4.df)
+        # f4 = np.arange(0, fs4, fs4 / y4.size)
         # fig = plt.figure(4, figsize=(8, 6))
         # ax = plt.subplot(2, 1, 1)
-        # ax.plot(t4, x4.samples)
+        # ax.plot(t4, x4)
         # ax = plt.subplot(2, 1, 2)
         # ax.plot(f4, s4)
         # fig.show()
@@ -191,11 +189,11 @@ class MfccTest(unittest.TestCase):
         l1 = 0.1
         n1 = int(fs1 * l1)
         t1 = np.linspace(0, l1, n1, False)
-        x1 = Window(np.sin(2 * 1000 * np.pi * t1), fs1)
+        x1 = np.sin(2 * 1000 * np.pi * t1)
         y1 = fft(x1)
 
-        mf1 = apply_mel_filterbank(y1)
-        self.assertTrue([mf1[6] >= m for m in mf1.samples])
+        mf1 = filterbank(y1, fs1)
+        self.assertTrue([mf1[6] >= m for m in mf1])
 
         # Plots just in case
         # Applying filterbank
@@ -209,29 +207,30 @@ class MfccTest(unittest.TestCase):
         # l_p = 0.1
         # n_p = int(fs_p * l_p)
         # t_p = np.linspace(0, l_p, n_p, False)
-        # x_p = Window(np.sin(2 * 1000 * np.pi * t_p), fs_p)
+        # x_p = np.sin(2 * 1000 * np.pi * t_p)
         # y_p = fft(x_p)
+        # s_p = fft_spectrum(y_p)
         #
         # mf_p = get_filter_frequencies(lf_p, hf_p, nf_p)
-        # m_p = apply_mel_filterbank(y_p)
+        # m_p = filterbank(y_p, fs_p)
         #
         # fig, axes = plt.subplots(3, 1, figsize=(8, 9))
-        # f_p = np.arange(0, fs_p, y_p.df)
-        # axes[0].plot(f_p, y_p.spectrum())
+        # f_p = np.arange(0, fs_p, fs_p / y_p.size)
+        # axes[0].plot(f_p, s_p)
         # axes[0].set_xlim([0, f_p[f_p.size // 2]])
         # axes[0].set_title('Spectrum')
-        # axes[1].plot(mf_p[1:-1], m_p.samples)
+        # axes[1].plot(mf_p[1:-1], m_p)
         # axes[1].set_xlim([0, f_p[f_p.size // 2]])
         # axes[1].set_title('Mel coefficients in frequency domain')
-        # axes[2].plot(np.arange(1, m_p.n_filters + 1), m_p.samples)
-        # axes[2].set_xlim([1, m_p.n_filters])
+        # axes[2].plot(np.arange(1, nf_p + 1), m_p)
+        # axes[2].set_xlim([1, nf_p])
         # axes[2].set_title('Mel coefficients')
         # fig.show()
 
     def test_logarithm(self):
 
-        mel_filter = MelFrame(np.array([10,100,1000]))
-        mel_filter_log = mfcc.logarithm(mel_filter).samples
+        mel_filter = np.array([10, 100, 1000])
+        mel_filter_log = mfcc.logarithm(mel_filter)
 
         self.assertEqual(1, mel_filter_log[0])
         self.assertEqual(2, mel_filter_log[1])
@@ -240,35 +239,31 @@ class MfccTest(unittest.TestCase):
     def test_dct(self):
 
         f_cos = 1000
-        # cepstr_coeff_quant = 13
-        # lf_p = 300
-        # hf_p = 4000
-        # nf_p = 20
         fs_p = 8000
         l_p = 0.1
         n_p = int(fs_p * l_p)
         t_p = np.linspace(0, l_p, n_p, False)
         x_p = np.cos(2 * f_cos * np.pi * t_p)
-        cepstr_coeff = apply_dct(MelFrame(x_p, n_p))
+        cepstr_coeff = dct(x_p)
 
         # cheacking if the max value
         self.assertGreater(cepstr_coeff[200], 15)
         self.assertTrue(all([coeff < 1 for coeff in np.hstack((cepstr_coeff[::190], cepstr_coeff[210::]))]))
 
-        # w_p = Window(x_p, fs_p)
+        # w_p = x_p
         # y_p = fft(w_p)
         #
         # #Here are the cepstral coeff for the processed cosine
-        # m_p = apply_mel_filterbank(y_p, lf_p, hf_p, nf_p)
+        # m_p = filterbank(y_p, fs_p)
         # mel_filter_log = mfcc.logarithm(m_p)
-        # cepstral_coeff_2 = apply_dct(mel_filter_log)
+        # cepstral_coeff_2 = dct(mel_filter_log)
         #
         # fig, axes = plt.subplots(3, 1, figsize=(8, 9))
-        # axes[0].plot(y_p.samples)
+        # axes[0].plot(y_p)
         # axes[0].set_title('power spectrum of processed signal')
-        # axes[1].plot(mel_filter_log.samples)
+        # axes[1].plot(mel_filter_log)
         # axes[1].set_title('Mel filters in logarithmic scale')
-        # axes[2].plot(cepstral_coeff_2.samples)
+        # axes[2].plot(cepstral_coeff_2)
         # axes[2].set_title('Cepstral Coefficients')
         #
         # fig.show()
