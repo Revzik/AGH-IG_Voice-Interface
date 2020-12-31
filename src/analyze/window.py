@@ -10,7 +10,7 @@ def window(sound_wave):
     The applied windowing function type is Hann
 
     :param sound_wave: (SoundWave) sound wave to be windowed
-    :return: (List of Window) windowed signal with Hann windows
+    :return: (List of 1-D ndarrays) windowed signal with Hann windows
     """
 
     length = config.analysis['window_length']
@@ -23,7 +23,7 @@ def window(sound_wave):
 
     windows = []
     for frame in frames:
-        windows.append(Window(frame * win_fun, sound_wave.fs))
+        windows.append(frame * win_fun)
 
     return windows
 

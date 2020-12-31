@@ -10,29 +10,33 @@ def mfcc(sound_wave):
     Computes mfcc of the signal based on parameters in config
 
     :param sound_wave: (SoundWave) audio clip to parametrize
-    :return: (List of MelFrame) MFCC parameters for each frame
-             (string) phrase in the sound_wave
+    :return: (2-D ndarray) MFCC parameters for each frame
     """
 
     frames = window.window(sound_wave)
-    cepstrum = []
+    n_filters = config.analysis['filterbank_size']
+    cepstrum = np.zeros((len(frames), n_filters))
 
-    for frame in frames:
-        cepstrum.append(apply_dct(logarithm(apply_mel_filterbank(fft(frame)))))
+    for i, frame in enumerate(frames):
+        tmp = fft(frame)
+        tmp = filterbank(tmp, sound_wave.fs)
+        tmp = logarithm(tmp)
+        tmp = dct(tmp)
+        cepstrum[i, :] = tmp
 
-    return cepstrum, sound_wave.phrase
+    return cepstrum
 
 
 def fft(frame):
     """
     Computes FFT using recursive Cooley-Tukey algorithm
 
-    :param frame: (Window) signal array to transform.
+    :param frame: (1-D ndarray) signal array to transform.
     If length is not a power of 2, then it gets padded with zeros.
-    :return: (FFTFrame) FFT of x
+    :return: (1-D ndarray) FFT of x
     """
 
-    x = frame.samples
+    x = frame
 
     if x.size == 0:
         return x
@@ -40,9 +44,7 @@ def fft(frame):
         target_length = first_power_of_2(x.size)
         x = np.concatenate((x, np.zeros(target_length - x.size)))
 
-    y = cooley_tukey(x)
-
-    return FFTFrame(y, frame.fs)
+    return cooley_tukey(x)
 
 
 def cooley_tukey(x):
@@ -82,22 +84,27 @@ def first_power_of_2(x):
     return power
 
 
-def apply_mel_filterbank(fft_frame):
+def fft_spectrum(fft_frame):
+    return np.abs(fft_frame) / fft_frame.size
+
+
+def filterbank(fft_frame, fs):
     """
     Generates and applies mel filterbank onto a given frequency spectrum
 
-    :param fft_frame: (FFTFrame) frame to be converted into mel coefficients
-    :return: (MelFrame) mel coefficients of a given frame
+    :param fft_frame: (1-D ndarray) frame to be converted into mel coefficients
+    :param fs: sampling frequency
+    :return: (1-D ndarray) mel coefficients of frame
     """
 
     bottom_frequency = config.analysis['bottom_filterbank_frequency']
     top_frequency = config.analysis['top_filterbank_frequency']
     n_filters = config.analysis['filterbank_size']
 
-    spectrum = fft_frame.spectrum()
+    spectrum = fft_spectrum(fft_frame)
     filter_frequencies = get_filter_frequencies(bottom_frequency, top_frequency, n_filters)
-    filter_bins = get_filter_bins(filter_frequencies, fft_frame.length(), fft_frame.fs)
-    mel_frame = MelFrame(np.zeros(n_filters), n_filters=n_filters)
+    filter_bins = get_filter_bins(filter_frequencies, fft_frame.size, fs)
+    mel_frame = np.zeros(n_filters)
 
     for m in range(1, n_filters + 1):
         h = np.zeros(spectrum.size)
@@ -160,12 +167,12 @@ def get_frequency(mel):
 
 def logarithm(mel_filter_log):
 
-    mel_filter_log.samples = np.log10(mel_filter_log.samples)
+    mel_filter_log = np.log10(mel_filter_log)
 
     return mel_filter_log
 
 
-def apply_dct(mel_filters_log):
+def dct(mel_filters_log):
 
     n = mel_filters_log.n_filters
     basis = np.empty((n, n))
@@ -180,6 +187,6 @@ def apply_dct(mel_filters_log):
         basis[i, :] = np.sqrt(2.0 / n) * np.cos((np.pi * i) * (2.0 * t + 1.0)/(2.0 * n))
 
     # multiplying by original log signal:
-    cepstral_coeff = CepstralFrame(np.dot(basis, mel_filters_log.samples))
+    cepstral_coeff = np.dot(basis, mel_filters_log)
 
     return cepstral_coeff
