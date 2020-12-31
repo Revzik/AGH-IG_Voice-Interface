@@ -24,7 +24,7 @@ def mfcc(sound_wave):
         tmp = dct(tmp)
         cepstrum[i, :] = tmp
 
-    return cepstrum
+    return cepstrum, sound_wave.phrase
 
 
 def fft(frame):
@@ -174,7 +174,7 @@ def logarithm(mel_filter_log):
 
 def dct(mel_filters_log):
 
-    n = mel_filters_log.n_filters
+    n = mel_filters_log.size
     basis = np.empty((n, n))
 
     # first basis element, different equation than further elements:

@@ -16,6 +16,6 @@ class ParametrizerTest(unittest.TestCase):
 
         cepstrum, phrase = parametrizer.parametrize(sound_wave)
 
-        self.assertEqual(499, len(cepstrum))
+        self.assertEqual(499, cepstrum.shape[0])
         self.assertEqual('test', phrase)
-        self.assertEqual(config.analysis['filterbank_size'], cepstrum[0].length())
+        self.assertEqual(config.analysis['filterbank_size'], cepstrum.shape[1])
