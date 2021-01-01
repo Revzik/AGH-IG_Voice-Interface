@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 import matplotlib.pyplot as plt
 
 from src.classes.containers import *
@@ -19,11 +20,11 @@ class ParametrizerTest(unittest.TestCase):
 
         frames = window.window(sound)
 
-        self.assertTrue(all([frames[0].length() == f.length() for f in frames]))
+        self.assertTrue(all([frames[0].shape == f.shape for f in frames]))
 
         # For an ascending linear function every next window should have higher energy
         for i in range(len(frames) - 1):
-            self.assertGreater(sound_utils.rms(frames[i + 1].samples), sound_utils.rms(frames[i].samples))
+            self.assertGreater(sound_utils.rms(frames[i + 1]), sound_utils.rms(frames[i]))
 
         # Plots
         # win_len = int(config.analysis['window_length'] * fs / 1000)
@@ -41,9 +42,9 @@ class ParametrizerTest(unittest.TestCase):
         # for i, frame in enumerate(frames):
         #     if i == len(frames) - 1:
         #         t = np.linspace(t[offset], t[offset] + win_len / fs, win_len)
-        #         axes[1].plot(t, frame.samples)
+        #         axes[1].plot(t, frame)
         #     else:
-        #         axes[1].plot(t[offset:(offset + win_len)], frame.samples, alpha=0.5)
+        #         axes[1].plot(t[offset:(offset + win_len)], frame, alpha=0.5)
         #     offset += win_step
         # axes[1].grid()
         # axes[1].set_title("windowed")
