@@ -41,7 +41,7 @@ class GaussianMixture:
 
         :param X: (2-D ndarray) MFCC features for the model
         """
-        history = []
+        # history = []
         likelyhoods = np.zeros((nr_em, ))
         scores = np.zeros((X.shape[0], n_clusters))
 
@@ -56,7 +56,7 @@ class GaussianMixture:
             print('Nr iteracji: ', i+1, 'Likelyhood: ', likelyhoods)
 
         for i, cluster in enumerate(self.clusters):
-            scores[:, 1] = np.log(cluster.gaussian(X)).reshape(-1)
+            scores[:, 1] = np.log(cluster.gamma_nk).reshape(-1)
 
         return self.clusters, likelyhoods, scores  # history
 
@@ -73,28 +73,45 @@ class GaussianMixture:
 
         return np.sum(np.log(totals))
 
+    def score1(self, X):
+        """
+        próba innego wyliczania likelyhood bo tamto dziwnie działa i nie czaję XD
+        """
+        totals = np.zeros((X.shape[0], 1), dtype=np.float64)
+
+        for cluster in self.clusters:
+            totals += cluster.gamma_nk
+
+        return np.sum(np.log(totals))
+
     def expectation_step(self, X):
         totals = np.zeros((X.shape[0], 1), dtype=np.float64)
         for cluster in self.clusters:
             totals += cluster.gaussian(X)
-            cluster.gamma_nk = cluster.gaussian(X)
+            cluster.gamma_nk = cluster.gaussian(X).astype(np.float64)
+
+            for i in range(X.shape[0]):
+                totals[i] += cluster.gamma_nk[i]
+
+            cluster.totals = totals
 
         for cluster in self.clusters:
-            cluster.gamma_nk /= totals
+            cluster.gamma_nk /= cluster.totals
 
     def maximization_step(self, X):
         N = float(X.shape[0])
         for cluster in self.clusters:
+
             cov_k = np.zeros((X.shape[1], X.shape[1]))
 
-            pi_k = np.sum(cluster.gaussian(X), axis=0) / N
-            mu_k = np.sum(cluster.gaussian(X) * X, axis=0) / (pi_k * N)
+            pi_k = np.sum(cluster.gamma_nk, axis=0) / N
+            mu_k = np.sum(cluster.gamma_nk * X, axis=0) / np.sum(cluster.gamma_nk, axis=0)
 
             for j in range(X.shape[0]):
                 diff = (X[j] - mu_k).reshape(-1, 1)
-                cov_k += cluster.gaussian(X)[j] * np.dot(diff, diff.T)
+                cov_k += cluster.gamma_nk[j] * np.dot(diff, diff.T)
 
-            cov_k /= (pi_k * N)
+            cov_k /= np.sum(cluster.gamma_nk, axis=0)
 
             cluster.pi = pi_k
             cluster.mu = mu_k
@@ -103,6 +120,8 @@ class GaussianMixture:
 
 class Cluster:
     def __init__(self, X):
+        self.totals = np.zeros((X.shape[0], 1), dtype=np.float64)
+        self.gamma_nk = np.random.rand()
         self.dim = X.shape[1]
         min_X = np.min(X, axis=0)
         max_X = np.max(X, axis=0)
