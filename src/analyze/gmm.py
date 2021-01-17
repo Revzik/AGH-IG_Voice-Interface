@@ -51,7 +51,7 @@ class GaussianMixture:
 
             self.expectation_step(X)
             self.maximization_step(X)
-            likelyhoods[i] = self.score(X)
+            likelyhoods[i] = self.score1(X)
 
             print('Nr iteracji: ', i+1, 'Likelyhood: ', likelyhoods)
 
