@@ -1,7 +1,8 @@
 import numpy as np
 from src.conf import config
-import operator
+import matplotlib.pyplot as plt
 
+import math
 
 def acorr(window, fs = config.analysis['sampling_frequency'], fmin = config.analysis['fmin'], fmax = config.analysis['fmax']):
 
@@ -29,12 +30,8 @@ def acorr(window, fs = config.analysis['sampling_frequency'], fmin = config.anal
     ac = ac[start:]
 
     # find max value
-    max_ac_index, max_ac_value = max(enumerate(ac), key = operator.itemgetter(1))
-    delays = np.arange((-len(y) + 1), len(x)) / fs
-
-    # + delays
-    delays = delays[len(y):]
-
+    max_ac_index = np.argmax(ac)
+    delays = np.arange(1,x.size)/fs
     tau = delays[max_ac_index] / fs
     tonality = None
 
@@ -44,4 +41,3 @@ def acorr(window, fs = config.analysis['sampling_frequency'], fmin = config.anal
         tonality = False
 
     return tonality
-
