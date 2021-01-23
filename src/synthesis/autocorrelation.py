@@ -1,7 +1,7 @@
 import numpy as np
 from src.conf import config
 import operator
-import math
+
 
 def acorr(window, fs = config.analysis['sampling_frequency'], fmin = config.analysis['fmin'], fmax = config.analysis['fmax']):
 
