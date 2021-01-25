@@ -108,7 +108,7 @@ class Cluster:
         self.dim = centers.size
         self.mu = centers
         self.cov = np.identity(self.dim, dtype=np.float64)
-        self.pi = np.random.rand()
+        self.pi = 1
 
     def gaussian(self, X):
         """
@@ -119,5 +119,8 @@ class Cluster:
         """
         diff = (X - self.mu).T
         fraction = 1 / ((2 * np.pi) ** (self.dim / 2) * np.linalg.det(self.cov) ** 0.5)
+        if np.linalg.matrix_rank(self.cov) != self.cov.shape[0]:
+            print("Covariance matrix is singular! Resetting...")
+            self.cov = np.identity(self.dim, dtype=np.float64)
         exponential = np.exp(-0.5 * np.dot(np.dot(diff.T, np.linalg.inv(self.cov)), diff))
         return self.pi * np.diagonal(fraction * exponential).reshape(-1, 1)
