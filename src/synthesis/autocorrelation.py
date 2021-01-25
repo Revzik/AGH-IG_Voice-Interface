@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 import math
 
-def acorr(window, fs = config.analysis['sampling_frequency'], fmin = config.analysis['fmin'], fmax = config.analysis['fmax']):
+def acorr(window, fs = config.analysis['sampling_frequency'], fmin = config.analysis['fmin'], fmax = config.analysis['fmax'], debug=False):
 
     # two the same signal (autocorrelation)
     x = window
@@ -31,13 +31,15 @@ def acorr(window, fs = config.analysis['sampling_frequency'], fmin = config.anal
 
     # find max value
     max_ac_index = np.argmax(ac)
-    delays = np.arange(1,x.size)/fs
-    tau = delays[max_ac_index] / fs
-    tonality = None
+    delays = np.arange(0, ac.size) / fs
+    tau = delays[max_ac_index]
 
     if (1/tau >= fmin) and (1/tau <= fmax):
         tonality = True
     else:
         tonality = False
 
-    return tonality
+    if not debug:
+        return tonality
+    else:
+        return tonality, delays, ac
