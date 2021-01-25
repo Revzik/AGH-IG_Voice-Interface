@@ -1,8 +1,10 @@
 import numpy as np
 
+from src.conf import config
+
 
 class GaussianMixture:
-    def __init__(self, k, X=None):
+    def __init__(self, X=None):
         """
         Initializes a gaussian mixture model for MFCC data.
         If data is None, then initial gaussian parameters will be random.
@@ -17,7 +19,7 @@ class GaussianMixture:
                 rows - consecutive samples
                 columns - components of each sample
         """
-        self.k = k
+        self.k = config.analysis["n_clusters"]
         self.clusters = []
         for i in range(self.k):
             self.clusters.append(Cluster(X))
@@ -41,7 +43,42 @@ class GaussianMixture:
 
         :param X: (2-D ndarray) MFCC features for the model
         """
-        pass
+        iters = config.analysis["iterations"]
+        likelihoods = np.zeros(iters + 1)
+
+        likelihoods[0] = self.score(X)
+        for i in range(iters):
+            gammas, sums = self.expect(X)
+            self.maximize(X, gammas, sums)
+
+            likelihoods[i + 1] = self.score(X)
+
+        return likelihoods
+
+    def expect(self, X):
+        gammas = np.zeros((X.shape[0], self.k))
+        sums = np.zeros((X.shape[0], self.k))
+
+        for i, cluster in enumerate(self.clusters):
+            gammas[:, i] = cluster.pi * cluster.gaussian(X)
+
+        for i, cluster in enumerate(self.clusters):
+            sums[:, i] = np.sum(gammas, axis=0)
+            gammas[:, i] /= sums[:, i]
+
+        return gammas, sums
+
+    def maximize(self, X, gammas, sums):
+        for i, cluster in enumerate(self.clusters):
+            cluster.pi = sums[:, i]
+
+            cluster.mu = gammas[:, i] * X / sums[:, i]
+
+            cluster.cov = np.zeros((self.k, self.k))
+            for j in range(X.shape[0]):
+                diff = (X[j, :] - cluster.mu).reshape(-1, 1)
+                cluster.cov += gammas[j, i] * np.dot(diff, diff.T)
+            cluster.cov /= sums[:, i]
 
     def score(self, X):
         """
