@@ -39,3 +39,4 @@ class SynthesisTest(unittest.TestCase):
         axes[1].set_title("autokorelacja")
         axes[1].set_xlabel("czas [s]")
         fig.show()
+    pass
