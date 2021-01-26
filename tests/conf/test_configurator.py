@@ -45,6 +45,11 @@ class ConfiguratorTest(unittest.TestCase):
         self.assertEqual(4000.0, config.analysis["top_filterbank_frequency"])
         self.assertEqual(14, config.analysis["filterbank_size"])
 
+    def test_folders(self):
+        folders = config.folders
+        keys = folders.keys()
+        vals = folders.values()
+
 
 if __name__ == '__main__':
     unittest.main()
