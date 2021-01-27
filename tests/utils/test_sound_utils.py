@@ -7,7 +7,7 @@ import soundfile
 from src.conf import config
 from src.classes.containers import SoundWave
 from src.utils import sound_utils
-from src.utils import sound_writer
+
 
 class SoundUtilsTest(unittest.TestCase):
     def setUp(self):
@@ -135,20 +135,6 @@ class SoundUtilsTest(unittest.TestCase):
         # ax.plot(t2, np.array(list(map(int, flags))) * np.max(sound_wave.samples), label='VAD')
         # fig.legend(loc='lower left')
         # fig.show()
-
-    def test_sound_writer(self):
-        # Theoretical test on artificial speech sample with noise
-        fs = 8000
-        duration = 5
-        t = np.linspace(0, duration, duration * fs)
-        speech_samples = {
-            'start': [10000, 25000, 36000],
-            'end':   [20000, 30000, 39000]
-        }
-
-        # Generating noise
-        sound_wave = np.random.randn(t.size) * 0.5
-        sound_writer.save_sound_file(sound_wave, fs, 'C:\\Users\\Kasia\\Documents\\nagrania\\nagranie.wav')
 
 
 if __name__ == '__main__':
