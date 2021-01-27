@@ -15,24 +15,26 @@ class TestSynthesis(unittest.TestCase):
         wav_data, fs = sf.read("C:\\Users\\Kasia\\Desktop\\naprzod.wav")
         sound = SoundWave(wav_data, fs, "C:\\Users\\Kasia\\Desktop\\naprzod.wav")
 
-        frame = window.window(sound, apply_window=False)
-        lpc_coeff, enhancement, filter_imp_response = linpredcod.lpc(frame[50])
-
         ramka = window.window(sound, apply_window=False)
+        s = []
+        e_duze = []
+        for i in range(0, len(ramka)-1):
+            tonal3, delays3, ac3, t = autocorrelation.acorr(ramka[i], debug=True)
+            lpc_coeff, enhancement = linpredcod.lpc(ramka[i])
+            x = synthesis.excitement(tonal3, t, lpc_coeff[::-1], enhancement)
+            s = np.append(s, x)
+            e_duze = np.append(e_duze, enhancement)
 
-        tonal3, delays3, ac3, t = autocorrelation.acorr(ramka[15], debug=True)
-
-        s = synthesis.excitement(tonal3, 5, lpc_coeff, enhancement)
 
         fig, axes = plt.subplots(2, 1, figsize=(8, 6))
         # fig.suptitle(str(f1) + " Hz")
-        axes[0].plot(frame[50])
+        axes[0].plot(wav_data)
         axes[0].set_title("sygnał")
-        axes[1].plot(s)
-        axes[1].set_title("synteza sygnału")
-        axes[1].set_xlabel("czas [s]")
+        axes[1].plot(e_duze)
+        axes[1].set_title("obwiednia sygnału")
+        axes[1].set_xlabel("próbki [-]")
         fig.show()
-
+        print(s)
         # fft_sig = np.abs(mfcc.fft(frame[50]))
         # print(fft_sig)
         # print(len(fft_sig))

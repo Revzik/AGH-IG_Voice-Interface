@@ -29,7 +29,7 @@ def acorr(window, fs = config.analysis['sampling_frequency'], fmin = config.anal
     ac = ac[start:]
     # find max value
     max_ac = argrelextrema(ac, np.greater)
-    max_ac_index = max_ac[0][0]
+    max_ac_index = max_ac[0][1]
     delays = np.arange(1, ac.size) / fs
     tau = delays[max_ac_index]
     #

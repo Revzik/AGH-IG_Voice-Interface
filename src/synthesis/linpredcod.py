@@ -45,6 +45,6 @@ def lpc(signal, order = config.analysis['order']):
    # pom.append(1, lpc_coeff)
     pom = lpc_coeff
     newArray = np.insert(pom, 0, 1)
-    filter_imp_response = sig.freqz(newArray, 1)
+    #filter_imp_response = sig.freqz(newArray, 1)
 
-    return lpc_coeff, enhancement, filter_imp_response
+    return lpc_coeff, enhancement
