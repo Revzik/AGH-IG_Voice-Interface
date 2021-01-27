@@ -23,7 +23,7 @@ def mfcc(sound_wave):
         tmp = dct(tmp)
         cepstrum[i, :] = tmp
 
-    return cepstrum, sound_wave.phrase
+    return cepstrum
 
 
 def fft(frame):
@@ -166,6 +166,7 @@ def get_frequency(mel):
 
 def logarithm(mel_filter_log):
 
+    np.place(mel_filter_log, mel_filter_log == 0, np.finfo(np.float32).eps)
     mel_filter_log = np.log10(mel_filter_log)
 
     return mel_filter_log

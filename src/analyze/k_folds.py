@@ -2,7 +2,10 @@ import random
 import math
 import numpy as np
 import os
+
 from src.conf import config
+from src.analyze import train
+from src.utils import plots
 
 
 def configure_k_folds():
@@ -42,3 +45,43 @@ def configure_k_folds():
         k_folds_groups.append(group)
 
     return k_folds_groups
+
+
+def initialize_dict(classes):
+    target_set = {}
+
+    for cls in classes:
+        target_set[cls] = []
+
+    return target_set
+
+
+def append_group(target_set, group):
+    for cls, paths in group.items():
+        for path in paths:
+            target_set[cls].append(path)
+
+
+def do_k_folds():
+    groups = configure_k_folds()
+    classes = groups[0].keys()
+
+    confusion_matrix = np.zeros((len(classes), len(classes)), dtype=np.int16)
+
+    for i in range(len(groups)):
+        train_set = initialize_dict(classes)
+        test_set = initialize_dict(classes)
+
+        for j in range(len(groups)):
+            if i == j:
+                append_group(test_set, groups[j])
+            else:
+                append_group(train_set, groups[j])
+
+        models = train.create_models(train_set)
+
+        cm = train.score_samples(test_set, models)
+
+        confusion_matrix += cm
+
+    plots.plot_confusion_matrix(confusion_matrix, classes)

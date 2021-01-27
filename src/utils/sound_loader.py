@@ -20,4 +20,7 @@ def load_sound_file(path):
             wav_data = wav_data[0, :]
         sound_list.append(SoundWave(wav_data, fs, path[:-4]))
 
+    if len(sound_list) == 1:
+        return sound_list[0]
+
     return sound_list
