@@ -4,7 +4,7 @@ from src.conf import config
 from src.analyze import window
 
 
-def mfcc(sound_wave):
+def mfcc(sound_wave, deltas=False, delta_deltas=False):
     """
     Computes mfcc of the signal based on parameters in config
 
@@ -23,7 +23,17 @@ def mfcc(sound_wave):
         tmp = dct(tmp)
         cepstrum[i, :] = tmp
 
-    return cepstrum, sound_wave.phrase
+    if deltas or delta_deltas:
+        ds = delta(cepstrum)
+        cepstrum = np.vstack((cepstrum, ds))
+    if delta_deltas:
+        cepstrum = np.vstack((cepstrum, delta(ds)))
+
+    return cepstrum
+
+
+def delta(cepstrum):
+    return cepstrum[1:cepstrum.shape[0], :] - cepstrum[0:cepstrum.shape[0] - 1, :]
 
 
 def fft(frame):
@@ -166,6 +176,7 @@ def get_frequency(mel):
 
 def logarithm(mel_filter_log):
 
+    np.place(mel_filter_log, mel_filter_log == 0, np.finfo(np.float32).eps)
     mel_filter_log = np.log10(mel_filter_log)
 
     return mel_filter_log

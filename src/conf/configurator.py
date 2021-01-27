@@ -11,6 +11,11 @@ class Configurator:
         self.analysis_config.read(analysis_path)
         self.analysis = self.parse_analysis()
 
+        folders_path = os.path.abspath(os.path.join(directory, '..', '..', 'conf', 'folders.ini'))
+        self.folders_config = cp.ConfigParser()
+        self.folders_config.read(folders_path)
+        self.folders = self.parse_folders()
+
         synthesis_path = os.path.abspath(os.path.join(directory, '..', '..', 'conf', 'synthesis.ini'))
         self.synthesis_config = cp.ConfigParser()
         self.synthesis_config.read(synthesis_path)
@@ -28,11 +33,22 @@ class Configurator:
             'filterbank_size': self.analysis_config.getint('mfcc', 'filterbank_size', fallback=14),
             'n_clusters': self.analysis_config.getint('gmm', 'n_clusters', fallback=14),
             'iterations': self.analysis_config.getint('gmm', 'iterations', fallback=20),
-            'number_of_group': self.analysis_config.getint('k_fold', 'number_of_group', fallback=5),
+            'number_of_groups': self.analysis_config.getint('k_folds', 'number_of_groups', fallback=5),
             'fmin': self.analysis_config.getint('synthesis', 'fmin', fallback=40),
             'fmax': self.analysis_config.getint('synthesis', 'fmax', fallback=400)
         }
         return analysis
+
+    def parse_folders(self):
+        folders = {
+            'known': {},
+            'unknown': {}
+        }
+        for key in self.folders_config['known']:
+            folders['known'][key] = self.folders_config.get('known', key)
+        for key in self.folders_config['unknown']:
+            folders['unknown'][key] = self.folders_config.get('unknown', key)
+        return folders
 
     def parse_synthesis(self):
         return {}
