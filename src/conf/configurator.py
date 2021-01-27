@@ -30,7 +30,8 @@ class Configurator:
             'iterations': self.analysis_config.getint('gmm', 'iterations', fallback=20),
             'number_of_group': self.analysis_config.getint('k_fold', 'number_of_group', fallback=5),
             'fmin': self.analysis_config.getint('synthesis', 'fmin', fallback=40),
-            'fmax': self.analysis_config.getint('synthesis', 'fmax', fallback=400)
+            'fmax': self.analysis_config.getint('synthesis', 'fmax', fallback=400),
+            'order': self.analysis_config.getint('synthesis', 'order', fallback=10)
         }
         return analysis
 
