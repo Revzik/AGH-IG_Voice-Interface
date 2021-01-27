@@ -7,6 +7,7 @@ from sklearn.mixture import GaussianMixture
 
 
 def create_models(train_set):
+    print("Creating models...")
     models = {}
 
     i = 1
@@ -46,12 +47,18 @@ def create_model(paths):
 
 
 def score_samples(test_set, models):
+    print("Scoring samples...")
+
     cm = np.zeros((len(test_set.keys()), len(test_set.keys())), dtype=np.int16)
 
-    for actual_index, paths in enumerate(test_set.values()):
+    actual_index = 0
+    for cls, paths in test_set.items():
+        print("Scoring for class {}".format(cls))
         for path in paths:
-            assigned_index, _ = score_sample(path, models)
+            assigned_index, assigned_label = score_sample(path, models)
+            print("File: {} , assigned label: {}".format(path, assigned_label))
             cm[assigned_index, actual_index] += 1
+        actual_index += 1
 
     return cm
 
@@ -62,8 +69,8 @@ def score_sample(path, models):
 
     scores = np.zeros(len(models.keys()))
 
-    for i in range(scores.size):
-        scores[i] = models[i].score(features)
+    for i, cls in enumerate(models.keys()):
+        scores[i] = models[cls].score(features)
 
-    max_idx = np.argmax(scores)
-    return max_idx, models.keys()[max_idx]
+    max_idx = int(np.argmax(scores))
+    return max_idx, list(models)[max_idx]
