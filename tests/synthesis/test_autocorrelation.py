@@ -21,15 +21,15 @@ class SynthesisTest(unittest.TestCase):
 
 
 
-        tonal1, delays1, ac1 = autocorrelation.acorr(sin1, fs=fs, fmin=40, fmax=400, debug=True)
-        tonal2, delays2, ac2 = autocorrelation.acorr(sin2, fs=fs, fmin=40, fmax=400, debug=True)
+        tonal1, delays1, ac1, t1 = autocorrelation.acorr(sin1, fs=fs, fmin=40, fmax=400, debug=True)
+        tonal2, delays2, ac2, t2 = autocorrelation.acorr(sin2, fs=fs, fmin=40, fmax=400, debug=True)
 
         wav_data, fs = sf.read("C:\\Users\\Kasia\\Desktop\\naprzod.wav")
         sound = SoundWave(wav_data, fs, "C:\\Users\\Kasia\\Desktop\\naprzod.wav")
 
         ramka = window.window(sound, apply_window=False)
 
-        tonal3, delays3, ac3 = autocorrelation.acorr(ramka[15], debug=True)
+        tonal3, delays3, ac3, t3 = autocorrelation.acorr(ramka[15], debug=True)
 
         print(tonal1)
         print(tonal2)

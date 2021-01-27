@@ -37,8 +37,7 @@ def acorr(window, fs = config.analysis['sampling_frequency'], fmin = config.anal
         tonality = True
     else:
         tonality = False
-
     if not debug:
         return tonality
     else:
-        return tonality, delays, ac
+        return tonality, delays, ac, max_ac_index

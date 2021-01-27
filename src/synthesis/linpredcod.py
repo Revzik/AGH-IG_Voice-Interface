@@ -36,6 +36,15 @@ def lpc(signal, order = config.analysis['order']):
         #tonal1, delays1, x = autocorrelation.acorr(signal, debug=True)
         r[:nx] = x[len(signal)-1:len(signal)+order]
         phi = np.dot(sp.linalg.inv(sp.linalg.toeplitz(r[:-1])), -r[1:])
-        return np.concatenate(([1.], phi))
+        lpc_coeff = np.concatenate(([1.], phi))
     else:
-        return np.ones(1, dtype = signal.dtype)
+        lpc_coeff = np.ones(1, dtype = signal.dtype)
+
+    enhancement = x[0]+np.dot(x[1:nx+1], lpc_coeff)
+   # pom = []
+   # pom.append(1, lpc_coeff)
+    pom = lpc_coeff
+    newArray = np.insert(pom, 0, 1)
+    filter_imp_response = sig.freqz(newArray, 1)
+
+    return lpc_coeff, enhancement, filter_imp_response
