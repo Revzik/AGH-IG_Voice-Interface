@@ -3,7 +3,7 @@ import numpy as np
 from src.conf import config
 
 
-def window(sound_wave):
+def window(sound_wave, apply_window=True):
     """
     Splits the signal into frames using window length and window overlap specified in config
     The applied windowing function type is Hann
@@ -18,7 +18,10 @@ def window(sound_wave):
     frames = split(sound_wave, length, overlap)
 
     win_len = frames[0].size
-    win_fun = hann(win_len)
+    if apply_window == True:
+        win_fun = hann(win_len)
+    else:
+        win_fun = np.ones(win_len)
 
     windows = []
     for frame in frames:

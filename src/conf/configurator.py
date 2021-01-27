@@ -29,6 +29,9 @@ class Configurator:
             'n_clusters': self.analysis_config.getint('gmm', 'n_clusters', fallback=14),
             'iterations': self.analysis_config.getint('gmm', 'iterations', fallback=20),
             'number_of_group': self.analysis_config.getint('k_fold', 'number_of_group', fallback=5)
+            'number_of_group': self.analysis_config.getint('k_fold', 'number_of_group', fallback=5),
+            'fmin': self.analysis_config.getint('synthesis', 'fmin', fallback=40),
+            'fmax': self.analysis_config.getint('synthesis', 'fmax', fallback=400)
         }
         return analysis
 
