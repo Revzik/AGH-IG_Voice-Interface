@@ -32,14 +32,15 @@ class KFoldsTets(unittest.TestCase):
         # print(scores)
 
     def test_plot_matrix(self):
-        normalize = True
+        normalize = False
 
-        cm = (10 * np.random.rand(14, 14) + 90 * np.identity(14)).astype(int)
+        with open("../../tmp/k_folds_cm.p", "rb") as f:
+            cm = pickle.load(f)
         if normalize:
-            cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+            cm = cm.astype('float') / cm.sum(axis=0)[:, np.newaxis]
 
-        classes = ['A', 'B', 'C', 'D', 'E', 'F', 'G',
-                   'H', 'I', 'J', 'K', 'L', 'M', 'N']
+        classes = ['ciszej', 'do_przodu', 'do_tylu', 'glosniej', 'igla', 'losuj',
+                   'odstaw', 'postaw', 'przewin', 'start', 'stop', 'wybierz']
         size = cm.shape[0]
 
         fig, ax = plt.subplots(figsize=(6, 6))
@@ -50,9 +51,9 @@ class KFoldsTets(unittest.TestCase):
         ax.set_yticklabels(classes)
         ax.set_xticks(np.arange(-0.5, size), minor=True)
         ax.set_yticks(np.arange(-0.5, size), minor=True)
-        ax.set_xlabel('Actual label')
+        ax.set_xlabel('Wypowiedziane slowo')
         ax.xaxis.set_label_position('top')
-        ax.set_ylabel('Predicted label')
+        ax.set_ylabel('Rozpoznane slowo')
         ax.grid(which='minor')
 
         fmt = '.2f' if normalize else 'd'

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 def plot_confusion_matrix(cm, classes, normalize=False):
     if normalize:
-        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        cm = cm.astype('float') / cm.sum(axis=0)[:, np.newaxis]
     size = cm.shape[0]
 
     fig, ax = plt.subplots(figsize=(6, 6))
@@ -16,9 +16,9 @@ def plot_confusion_matrix(cm, classes, normalize=False):
     ax.set_yticklabels(classes)
     ax.set_xticks(np.arange(-0.5, size), minor=True)
     ax.set_yticks(np.arange(-0.5, size), minor=True)
-    ax.set_xlabel('Actual label')
+    ax.set_xlabel('Wypowiedziane slowo')
     ax.xaxis.set_label_position('top')
-    ax.set_ylabel('Predicted label')
+    ax.set_ylabel('Rozpoznane slowo')
     ax.grid(which='minor')
 
     fmt = '.2f' if normalize else 'd'

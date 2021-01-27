@@ -81,11 +81,10 @@ def do_k_folds():
                 append_group(train_set, groups[j])
 
         models = train.create_models(train_set)
-        cm = train.score_samples(test_set, models)
+        confusion_matrix = confusion_matrix + train.score_samples(test_set, models)
 
-        confusion_matrix += cm
-
-    plots.plot_confusion_matrix(confusion_matrix, classes)
+    plots.plot_confusion_matrix(confusion_matrix, classes, normalize=False)
+    plots.plot_confusion_matrix(confusion_matrix, classes, normalize=True)
 
     with open("../../tmp/k_folds_cm.p", "wb") as f:
         pickle.dump(confusion_matrix, f)

@@ -27,7 +27,7 @@ def create_model(paths):
     for i, path in enumerate(paths):
         print("Computing mfcc for {} ({} / {})".format(path, i + 1, len(paths)))
         wave = sound_loader.load_sound_file(path)
-        cur_feat = mfcc.mfcc(wave)
+        cur_feat = mfcc.mfcc(wave, delta_deltas=True)
 
         if features is None:
             features = cur_feat
