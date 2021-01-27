@@ -1,4 +1,6 @@
 import numpy as np
+import os
+import pickle
 
 from src.analyze import gmm, mfcc
 from src.utils import sound_loader
@@ -74,3 +76,17 @@ def score_sample(path, models):
 
     max_idx = int(np.argmax(scores))
     return max_idx, list(models)[max_idx]
+
+
+if __name__ == "__main__":
+    # load words
+    data = {}
+
+    for word, path in config.folders['known'].items():
+        data[word] = []
+        data[word] = [os.path.join(path, p) for p in os.listdir(path)]
+
+    models = create_models(data)
+
+    with open("../../tmp/models.p", "wb") as f:
+        pickle.dump(models, f)
