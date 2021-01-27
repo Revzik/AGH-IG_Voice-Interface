@@ -26,6 +26,9 @@ class Configurator:
             'bottom_filterbank_frequency': self.analysis_config.getfloat('mfcc', 'bottom_filterbank_frequency', fallback=300),
             'top_filterbank_frequency': self.analysis_config.getfloat('mfcc', 'top_filterbank_frequency', fallback=4000),
             'filterbank_size': self.analysis_config.getint('mfcc', 'filterbank_size', fallback=14),
+            'n_clusters': self.analysis_config.getint('gmm', 'n_clusters', fallback=14),
+            'iterations': self.analysis_config.getint('gmm', 'iterations', fallback=20),
+            'number_of_group': self.analysis_config.getint('k_fold', 'number_of_group', fallback=5)
             'number_of_group': self.analysis_config.getint('k_fold', 'number_of_group', fallback=5),
             'fmin': self.analysis_config.getint('synthesis', 'fmin', fallback=40),
             'fmax': self.analysis_config.getint('synthesis', 'fmax', fallback=400)

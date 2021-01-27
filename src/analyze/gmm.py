@@ -1,8 +1,11 @@
 import numpy as np
 
+from sklearn.cluster import KMeans
+from src.conf import config
+
 
 class GaussianMixture:
-    def __init__(self, k, X=None):
+    def __init__(self, X=None):
         """
         Initializes a gaussian mixture model for MFCC data.
         If data is None, then initial gaussian parameters will be random.
@@ -17,10 +20,12 @@ class GaussianMixture:
                 rows - consecutive samples
                 columns - components of each sample
         """
-        self.k = k
+        self.k = config.analysis["n_clusters"]
+        kmeans = KMeans(n_clusters=self.k).fit(X)
+        cluster_centers = kmeans.cluster_centers_
         self.clusters = []
         for i in range(self.k):
-            self.clusters.append(Cluster(X))
+            self.clusters.append(Cluster(cluster_centers[i, :]))
 
         self.normalize_clusters()
 
@@ -41,7 +46,48 @@ class GaussianMixture:
 
         :param X: (2-D ndarray) MFCC features for the model
         """
-        pass
+        iters = config.analysis["iterations"]
+        likelihoods = np.zeros(iters + 1)
+
+        likelihoods[0] = self.score(X)
+        for i in range(iters):
+            gammas = self.expect(X)
+            self.maximize(X, gammas)
+
+            likelihoods[i + 1] = self.score(X)
+
+        return likelihoods
+
+    def expect(self, X):
+        gammas = np.zeros((X.shape[0], self.k), dtype=np.float64)
+        totals = np.zeros((X.shape[0]), dtype=np.float64)
+
+        for i, cluster in enumerate(self.clusters):
+            gammas[:, i] = (cluster.pi * cluster.gaussian(X))[:, 0]
+
+        totals[:] = np.sum(gammas, axis=1)
+
+        for i, cluster in enumerate(self.clusters):
+            gammas[:, i] /= totals[:]
+
+        return gammas
+
+    def maximize(self, X, gammas):
+        N = X.shape[0]
+        dim = X.shape[1]
+
+        for i, cluster in enumerate(self.clusters):
+            N_k = np.sum(gammas[:, i])
+
+            cluster.pi = N_k / N
+
+            cluster.mu = np.sum(np.multiply(gammas[:, i].T, X.T).T, axis=0) / N_k
+
+            cluster.cov = np.zeros((dim, dim))
+            for j in range(N):
+                diff = (X[j, :] - cluster.mu).reshape(-1, 1)
+                cluster.cov += gammas[j, i] * np.dot(diff, diff.T)
+            cluster.cov /= N_k
 
     def score(self, X):
         """
@@ -58,13 +104,11 @@ class GaussianMixture:
 
 
 class Cluster:
-    def __init__(self, X):
-        self.dim = X.shape[1]
-        min_X = np.min(X, axis=0)
-        max_X = np.max(X, axis=0)
-        self.mu = np.random.rand(self.dim) * (max_X - min_X) + min_X
+    def __init__(self, centers):
+        self.dim = centers.size
+        self.mu = centers
         self.cov = np.identity(self.dim, dtype=np.float64)
-        self.pi = np.random.rand()
+        self.pi = 1
 
     def gaussian(self, X):
         """
@@ -75,5 +119,8 @@ class Cluster:
         """
         diff = (X - self.mu).T
         fraction = 1 / ((2 * np.pi) ** (self.dim / 2) * np.linalg.det(self.cov) ** 0.5)
+        if np.linalg.matrix_rank(self.cov) != self.cov.shape[0]:
+            print("Covariance matrix is singular! Resetting...")
+            self.cov = np.identity(self.dim, dtype=np.float64)
         exponential = np.exp(-0.5 * np.dot(np.dot(diff.T, np.linalg.inv(self.cov)), diff))
         return self.pi * np.diagonal(fraction * exponential).reshape(-1, 1)
